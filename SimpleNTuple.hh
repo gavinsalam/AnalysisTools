@@ -10,11 +10,11 @@
 class SimpleNTupleLine {
 public:
   /// start off an entry
-  SimpleNTupleLine(std::ostream * ostr = NULL, const string & title = "") 
+  SimpleNTupleLine(std::ostream * ostr = NULL, const std::string & title = "") 
     : _ostr(ostr) {
     if (_ostr) _sstr << "!!" << title;
   }
-  SimpleNTupleLine(std::ostream & ostr, const string & title = "") 
+  SimpleNTupleLine(std::ostream & ostr, const std::string & title = "") 
     : _ostr(&ostr) {
     if (_ostr) _sstr << "!!" << title;
   }
@@ -42,7 +42,7 @@ public:
     
   /// finish off the line once we're done
   ~SimpleNTupleLine() {
-    if (_ostr) *_ostr << _sstr.str() << endl;
+    if (_ostr) *_ostr << _sstr.str() << std::endl;
   }
 
 private:

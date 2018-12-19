@@ -104,7 +104,7 @@ inline void output_noNaN(const CorrelationHist & hist,
   
   *ostr << "# binlo binmid binhi correl";
   if (details) *ostr << " avgx avgy avgxy varx vary ";
-  *ostr << endl;
+  *ostr << std::endl;
   for (unsigned i = 0; i < hist.size(); i++) {
     *ostr << hist.binlo(i)  << " " 
           << hist.binmid(i) << " "
