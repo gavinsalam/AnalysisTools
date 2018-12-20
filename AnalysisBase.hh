@@ -1,6 +1,7 @@
 #ifndef   __ANALYSISFRAMEBASE_HH__
 #define   __ANALYSISFRAMEBASE_HH__
 
+
 #include "SimpleNTuple.hh"
 #include "SimpleHist.hh"
 #include "SimpleHist2D.hh"
@@ -8,6 +9,9 @@
 #include "CorrelationHist.hh"
 #include "AverageAndError.hh"
 #include "NLOHistGeneric.hh"
+
+#include "CmdLine.hh"
+
 
 //----------------------------------------------------------------------
 /// a histogram with default limits and bin size
@@ -90,6 +94,68 @@ public:
   bool   internal_ref;
 };
 
+//------------------------------------------------------------
 
+/// Class that helps organise an analysis. The idea is that within a
+/// given framework a number of the protected functions will be set up
+/// (e.g. to handle a specific type of event record, etc.).
+///
+/// The base class can handle a variety of aspects
+/// 
+/// - maps of various kinds of histograms (which can have default
+///   binnings, or binnings set up on the fly), and which get
+///   automatically output
+///
+/// - periodic output of results
+class AnalysisBase {
+public:
+  AnalysisBase(CmdLine & cmdline);
+  virtual ~AnalysisBase ();
+
+  /// the user may want to set up some of their own parameters
+  virtual void user_startup() {};
+
+  /// things that the user will want to do after all the
+  /// options have been processed
+  virtual void user_post_startup() {};
+
+  /// let the user fill their histograms, etc.
+  virtual void analyse_event() {};
+
+  /// any extra output
+  virtual void user_output(std::ostream &) {};
+
+protected:
+
+  CmdLine & cmdline;
+
+  /// for things that the framework sets up ahead of time;
+  virtual void pre_startup();
+  virtual void post_startup();
+  virtual void standard_output();
+
+  /// this has to be set up by whatever derives from this class
+  //// 
+  virtual void event_loop() = 0;
+
+  std::map<std::string,DefaultHist> hists; //< histograms normalised as a differential cross section on output
+  std::map<std::string,DefaultHist> norm_hists; //< histograms normalised to have total weight of 1 on output
+  std::map<std::string,DefaultAveragingHist> avg_hists;
+  std::map<std::string,DefaultCorrelationHist> corr_hists;
+  std::map<std::string,SimpleHist2D> hists_2d;
+  std::map<std::string,AverageAndError> xsections;
+  std::map<std::string,AverageAndErrorWithRef> averages;
+  std::map<std::string,NLOHistGeneric> gen_hists;
+  typedef std::map<std::string, NLOHistGeneric>::iterator GenHistIt;
+
+  std::ostringstream header;
+  std::string output_filename;
+
+  double _total_weight;
+
+  /// this will be used to output units
+  std::string _units_string;
+
+};
 
 #endif // __ANALYSISFRAMEBASE_HH__
