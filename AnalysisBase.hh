@@ -2,6 +2,8 @@
 #define   __ANALYSISFRAMEBASE_HH__
 
 
+#include <unordered_map>
+
 #include "SimpleNTuple.hh"
 #include "SimpleHist.hh"
 #include "SimpleHist2D.hh"
@@ -109,7 +111,7 @@ public:
 /// - periodic output of results
 class AnalysisBase {
 public:
-  AnalysisBase(CmdLine & cmdline);
+  AnalysisBase(CmdLine * cmdline);
   virtual ~AnalysisBase ();
 
   /// the user may want to set up some of their own parameters
@@ -135,18 +137,17 @@ protected:
   virtual void standard_output();
 
   /// this has to be set up by whatever derives from this class
-  //// 
   virtual void event_loop() = 0;
 
-  std::map<std::string,DefaultHist> hists; //< histograms normalised as a differential cross section on output
-  std::map<std::string,DefaultHist> norm_hists; //< histograms normalised to have total weight of 1 on output
-  std::map<std::string,DefaultAveragingHist> avg_hists;
-  std::map<std::string,DefaultCorrelationHist> corr_hists;
-  std::map<std::string,SimpleHist2D> hists_2d;
-  std::map<std::string,AverageAndError> xsections;
-  std::map<std::string,AverageAndErrorWithRef> averages;
-  std::map<std::string,NLOHistGeneric> gen_hists;
-  typedef std::map<std::string, NLOHistGeneric>::iterator GenHistIt;
+  std::unordered_map<std::string,DefaultHist> hists; //< histograms normalised as a differential cross section on output
+  std::unordered_map<std::string,DefaultHist> norm_hists; //< histograms normalised to have total weight of 1 on output
+  std::unordered_map<std::string,DefaultAveragingHist> avg_hists;
+  std::unordered_map<std::string,DefaultCorrelationHist> corr_hists;
+  std::unordered_map<std::string,SimpleHist2D> hists_2d;
+  std::unordered_map<std::string,AverageAndError> xsections;
+  std::unordered_map<std::string,AverageAndErrorWithRef> averages;
+  std::unordered_map<std::string,NLOHistGeneric> gen_hists;
+  typedef std::unordered_map<std::string, NLOHistGeneric>::iterator GenHistIt;
 
   std::ostringstream header;
   std::string output_filename;
@@ -156,6 +157,7 @@ protected:
   /// this will be used to output units
   std::string _units_string;
 
+  CmdLine * _cmdline;
 };
 
 #endif // __ANALYSISFRAMEBASE_HH__
