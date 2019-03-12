@@ -97,7 +97,7 @@ private:
 
 //----------------------------------------------------------------------
 inline void output_noNaN(const AveragingHist hist, 
-                   std::ostream * ostr = (&std::cout)) {
+                         std::ostream * ostr = (&std::cout), double = 1.0) {
   
   for (unsigned i = 0; i < hist.size(); i++) {
     *ostr << hist.binlo(i)  << " " 

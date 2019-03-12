@@ -169,7 +169,7 @@ public:
   ///     the finite-precision numerics gave a NaN rather than the
   ///     correct answer.
   ///
-  void write(std::ostream & ostr, int hist_index) {
+  void write(std::ostream & ostr, int hist_index) const {
     double norm = 1/_nev;
     ostr << "# " << _name << " (index = " << hist_index << ")" << std::endl;
     write_norm(ostr, norm);
@@ -197,14 +197,15 @@ public:
   /// write the output with a user-chosen multiplicative normalisation
   //// - bin width is still automatically divided out
   ///  - this version leaves out the label line
-  void write_norm(std::ostream & ostr, double norm) {
+  void write_norm(std::ostream & ostr, double norm) const {
     // make sure we're not in the middle of an event
     assert(_in_use.size() == 0);
     // calculate the errors
+    std::vector<double> tmp(_tmp.size(), 0.0);
     for (unsigned ibin = 0; ibin < _limits.size()-1; ibin++) {
       // this will be used for the error, and contains a factor
       // nev**2 inside the sqrt currently (will be removed when writing)
-      _tmp[ibin] = sqrt(std::abs(_sqr[ibin] - _main[ibin]*_main[ibin]/_nev));
+      tmp[ibin] = sqrt(std::abs(_sqr[ibin] - _main[ibin]*_main[ibin]/_nev));
     }
 
     // finally output the histogram with errors
@@ -212,8 +213,8 @@ public:
     for (unsigned ibin = 0; ibin < _limits.size()-1; ibin++) {
       double binsize = _limits[ibin+1] - _limits[ibin];
       ostr << _limits[ibin] << " " << 0.5*(_limits[ibin]+_limits[ibin+1]) << " " << _limits[ibin+1] << " "
-	   << _main[ibin]*norm /binsize << " " << _tmp[ibin]*norm /binsize << std::endl;
-      _tmp[ibin] = 0.0;
+	   << _main[ibin]*norm /binsize << " " << tmp[ibin]*norm /binsize << std::endl;
+      tmp[ibin] = 0.0;
     }
   }
 

@@ -111,25 +111,45 @@ public:
 /// - periodic output of results
 class AnalysisBase {
 public:
-  AnalysisBase(CmdLine * cmdline);
-  virtual ~AnalysisBase ();
+  AnalysisBase(CmdLine * cmdline_in);
+  void run();
+  virtual ~AnalysisBase () {}
 
   /// the user may want to set up some of their own parameters
-  virtual void user_startup() {};
+  virtual void user_startup() {}
 
   /// things that the user will want to do after all the
   /// options have been processed
-  virtual void user_post_startup() {};
+  virtual void user_post_startup() {}
 
+  /// this generates the event
+  virtual void generate_event() = 0;
+
+  // this returns the weight of the current event
+  // (only valid after a call to generate_event)
+  virtual double event_weight() = 0;
+  
   /// let the user fill their histograms, etc.
-  virtual void analyse_event() {};
+  virtual void analyse_event() {}
 
   /// any extra output
-  virtual void user_output(std::ostream &) {};
+  virtual void user_output(std::ostream &) {}
 
+  /// set the default binning for each kind of histogram
+  void set_default_binning(double xmin, double xmax, double dx) {
+    DefaultHist::set_defaults(xmin, xmax, dx); 
+    DefaultAveragingHist::set_defaults(xmin, xmax, dx); 
+    DefaultCorrelationHist::set_defaults(xmin, xmax, dx); 
+  }
+
+  /// returns the factor that multiplies the sum of weights in order
+  /// to get a cross section (or analogue).
+  virtual double weight_factor() const {return 1.0/iev;}
+
+  
 protected:
 
-  CmdLine & cmdline;
+  CmdLine * cmdline;
 
   /// for things that the framework sets up ahead of time;
   virtual void pre_startup();
@@ -137,27 +157,72 @@ protected:
   virtual void standard_output();
 
   /// this has to be set up by whatever derives from this class
-  virtual void event_loop() = 0;
+  virtual void event_loop();
 
-  std::unordered_map<std::string,DefaultHist> hists; //< histograms normalised as a differential cross section on output
-  std::unordered_map<std::string,DefaultHist> norm_hists; //< histograms normalised to have total weight of 1 on output
-  std::unordered_map<std::string,DefaultAveragingHist> avg_hists;
-  std::unordered_map<std::string,DefaultCorrelationHist> corr_hists;
-  std::unordered_map<std::string,SimpleHist2D> hists_2d;
-  std::unordered_map<std::string,AverageAndError> xsections;
-  std::unordered_map<std::string,AverageAndErrorWithRef> averages;
-  std::unordered_map<std::string,NLOHistGeneric> gen_hists;
-  typedef std::unordered_map<std::string, NLOHistGeneric>::iterator GenHistIt;
 
+  template<class T> using Collection = std::unordered_map<std::string, T>;
+
+  // scalar type quantities
+  Collection<AverageAndError> xsections;
+  Collection<AverageAndErrorWithRef> averages;
+
+  // 1D type quantities
+  Collection<DefaultHist> hists; //< histograms normalised as a differential cross section on output
+  Collection<DefaultHist> norm_hists; //< histograms normalised to have total weight of 1 on output
+  Collection<DefaultAveragingHist> avg_hists;
+  Collection<DefaultCorrelationHist> corr_hists;
+  Collection<NLOHistGeneric> gen_hists;
+  typedef Collection<NLOHistGeneric>::iterator GenHistIt;
+
+  // 2d quantities
+  Collection<SimpleHist2D> hists_2d;
+
+  
   std::ostringstream header;
   std::string output_filename;
 
-  double _total_weight;
+  double total_weight;
 
   /// this will be used to output units
   std::string _units_string;
 
-  CmdLine * _cmdline;
+  CmdLine * cmdline_;
+
+  unsigned long long int iev, nev, output_interval, iev_last_output;
+
+  template<class T> vector<string> ordered_labels(Collection<T> & collection) {
+    std::vector<string> labels;
+    // first get an alphabetically ordered list of labels, regardless
+    // of whether the collection has an underlying alphabetical order (map)
+    // or not (unordered_map)
+    for(const auto & item: collection) {
+      labels.push_back(item.first);
+    }
+    std::sort(labels.begin(), labels.end());
+    return labels;
+  }
+  
+//   /// output a given collection, in alphabetical order of the labels
+//   template<class T, class U> std::ostream & output_collection(std::ostream & ostr,
+//                                                               Collection<T> & collection,
+//                                                               const std::string & prefix,
+//                                                               U norm_function) {
+//     std::vector<string> labels;
+//     // first get an alphabetically ordered list of labels, regardless
+//     // of whether the collection has an underlying alphabetical order (map)
+//     // or not (unordered_map)
+//     for(const auto & item: collection) {
+//       labels.push_back(item.first);
+//     }
+//     std::sort(labels.begin(), labels.end());
+//     for (const auto & label: labels) {
+//       ostr << "# " << prefix << ":" << label << endl;
+//       const auto & item = collection[label];
+//       auto norm = norm_function(item);
+//       output(item, &ostr, norm);
+//     }
+//     return ostr;
+//   };
 };
 
 #endif // __ANALYSISFRAMEBASE_HH__
