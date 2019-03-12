@@ -16,6 +16,12 @@ template<> double DefaultCorrelationHist::_hi = 100.0;
 template<> double DefaultCorrelationHist::_bin_size = 1.0;
 
 
+//======================================================================
+AnalysisBase::AnalysisBase(CmdLine * cmdline_in) : cmdline(cmdline_in) {
+  nev = cmdline->value<double>("-nev", 1e2);
+}
+
+//======================================================================
 void AnalysisBase::run() {
   for (iev = 0; iev < nev; ) {
 
@@ -39,13 +45,6 @@ void AnalysisBase::run() {
   standard_output();
 }
 
-//======================================================================
-AnalysisBase::AnalysisBase(CmdLine * cmdline_in) : cmdline(cmdline_in) {
-  iev = 0;
-  nev = cmdline->value<double>("-nev", 1e2);
-  iev_last_output = 0;
-  output_interval = 1;
-}
 
 //======================================================================
 void AnalysisBase::standard_output() {

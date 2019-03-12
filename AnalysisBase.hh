@@ -2,6 +2,7 @@
 #define   __ANALYSISFRAMEBASE_HH__
 
 
+#include <limits>
 #include <unordered_map>
 
 #include "SimpleNTuple.hh"
@@ -112,7 +113,9 @@ public:
 class AnalysisBase {
 public:
   AnalysisBase(CmdLine * cmdline_in);
+
   void run();
+  
   virtual ~AnalysisBase () {}
 
   /// the user may want to set up some of their own parameters
@@ -123,11 +126,11 @@ public:
   virtual void user_post_startup() {}
 
   /// this generates the event
-  virtual void generate_event() = 0;
+  virtual void generate_event() {};
 
   // this returns the weight of the current event
   // (only valid after a call to generate_event)
-  virtual double event_weight() = 0;
+  virtual double event_weight() {return event_weight_;}
   
   /// let the user fill their histograms, etc.
   virtual void analyse_event() {}
@@ -152,12 +155,9 @@ protected:
   CmdLine * cmdline;
 
   /// for things that the framework sets up ahead of time;
-  virtual void pre_startup();
-  virtual void post_startup();
+  virtual void pre_startup() {};
+  virtual void post_startup() {};
   virtual void standard_output();
-
-  /// this has to be set up by whatever derives from this class
-  virtual void event_loop();
 
 
   template<class T> using Collection = std::unordered_map<std::string, T>;
@@ -181,14 +181,15 @@ protected:
   std::ostringstream header;
   std::string output_filename;
 
-  double total_weight;
+  double event_weight_ = 1.0;
+  double total_weight = 0.0;
 
   /// this will be used to output units
   std::string _units_string;
 
   CmdLine * cmdline_;
 
-  unsigned long long int iev, nev, output_interval, iev_last_output;
+  unsigned long long int iev = 0, nev = 0, output_interval = 1, iev_last_output=0;
 
   template<class T> vector<string> ordered_labels(Collection<T> & collection) {
     std::vector<string> labels;
