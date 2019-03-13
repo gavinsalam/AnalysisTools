@@ -110,6 +110,8 @@ public:
 ///   automatically output
 ///
 /// - periodic output of results
+///
+/// For now we will structure the class 
 class AnalysisBase {
 public:
   AnalysisBase(CmdLine * cmdline_in);
@@ -126,14 +128,14 @@ public:
   virtual void user_post_startup() {}
 
   /// this generates the event
-  virtual void generate_event() {};
+  virtual bool generate_event() = 0;
 
   // this returns the weight of the current event
   // (only valid after a call to generate_event)
   virtual double event_weight() {return event_weight_;}
   
   /// let the user fill their histograms, etc.
-  virtual void analyse_event() {}
+  virtual void user_analyse_event() {}
 
   /// any extra output
   virtual void user_output(std::ostream &) {}
@@ -149,6 +151,16 @@ public:
   /// to get a cross section (or analogue).
   virtual double weight_factor() const {return 1.0/iev;}
 
+  /// returns true if it's time for periodic output (established
+  /// based on the event number); this not check if periodic output
+  /// actually occurred, but still updates internal counters as if
+  /// it had
+  bool periodic_output_is_due() {
+    if (iev - iev_last_output < output_interval) return false;
+    iev_last_output = iev;
+    if (output_interval * (1.0/iev) > 0.05) output_interval *= 2;
+    return true;
+  }
   
 protected:
 

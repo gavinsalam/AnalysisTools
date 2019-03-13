@@ -18,28 +18,40 @@ template<> double DefaultCorrelationHist::_bin_size = 1.0;
 
 //======================================================================
 AnalysisBase::AnalysisBase(CmdLine * cmdline_in) : cmdline(cmdline_in) {
+
+  header << cmdline->header() << endl;
   nev = cmdline->value<double>("-nev", 1e2);
+  output_filename = cmdline->value<string>("-out");
+  
 }
 
 //======================================================================
 void AnalysisBase::run() {
+  pre_startup();
+  user_startup();
+  post_startup();
+  user_post_startup();
+
+  cmdline->assert_all_options_used();
+
+  /// should this go into a separate event_loop routine?
   for (iev = 0; iev < nev; ) {
 
-    generate_event();
+    bool success = generate_event();
+    // what do we do on failure: bail out, or continue round the loop?
+    if (! success) break;
+    
     total_weight += event_weight();
 
-    analyse_event();
+    user_analyse_event();
 
     // certain histogram types need collating at the
     // end of each event
     for (auto & hist: gen_hists) hist.second.collate_event();
-      
+
+    // update event number before checking whether to write
     iev++;
-    // periodically, output the state of things
-    if (iev - iev_last_output >= output_interval) {
-      standard_output();
-      if (output_interval * (1.0/iev) > 0.05) output_interval *= 2;
-    }
+    if (periodic_output_is_due()) standard_output();
   }
   // arrange for final output
   standard_output();
@@ -54,7 +66,7 @@ void AnalysisBase::standard_output() {
 
   ostr << header.str();
   ostr << "# time now = " << cmdline->time_stamp() << endl;
-  ostr << "# nev = " << iev << endl;
+  ostr << "# nev generated = " << iev << endl;
 
   // normalisation factor to be used throughout
   double norm = weight_factor();
@@ -84,9 +96,8 @@ void AnalysisBase::standard_output() {
       avnorm = 1.0/total_weight;
       obj.set_n(iev); // for errors on xsc
     } else {
-      if (obj.internal_ref) 
-	ref_xsection = & obj.ref_xsection_value;
-      else               ref_xsection = & xsections[obj.ref_xsection];
+      if (obj.internal_ref) ref_xsection = & obj.ref_xsection_value;
+      else                  ref_xsection = & xsections[obj.ref_xsection];
       avnorm = 1.0/ref_xsection->sum();
       obj.set_n(ref_xsection->n()); // for errors
     }
