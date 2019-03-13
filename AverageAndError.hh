@@ -12,7 +12,7 @@ public:
   AverageAndError() { _sum = 0.0; _sum2 = 0.0; _sum3 = 0.0; _sum4 = 0.0; _n=0;}
   
   /// add one entry
-  inline void add(double x) { _sum += x;
+  inline virtual void add(double x) { _sum += x;
                               double x2 = x*x; 
                               _sum2 += x2;
                               _sum3 += x2*x;
@@ -93,6 +93,30 @@ public:
 double _sum, _sum2, _sum3, _sum4;
 int _n;
 
+};
+
+//std::ostream operator<<(ostream & ostr, const AverageAndError & )
+
+/// adds functionality of maintaining info about the smallest and largest values
+class AverageAndErrorWithBounds : public AverageAndError {
+public:
+  // default constructor will do the job here
+  inline void add(double x) {
+    AverageAndError::add(x);
+    if (x < _min) _min = x;
+    if (x > _max) _max = x;
+  }
+
+  /// return the the minimum value encountered
+  double min() const {return _min;}
+  /// return the the maximum value encountered
+  double max() const {return _max;}
+  
+private:
+  /// internal store of the bounds
+  /// (note the _min starts as numeric_limits<double>::max() because then any thing smaller
+  /// than that will immediately register as the minimum)
+  double _min = std::numeric_limits<double>::max(), _max=-std::numeric_limits<double>::max();
 };
 
 #endif // __AVERAGEANDERROR_HH__
