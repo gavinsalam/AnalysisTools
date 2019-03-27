@@ -19,7 +19,7 @@ template<> double DefaultCorrelationHist::_bin_size = 1.0;
 //======================================================================
 AnalysisBase::AnalysisBase(CmdLine * cmdline_in) : cmdline(cmdline_in) {
 
-  header << cmdline->header() << endl;
+  header << cmdline->header();
   nev = cmdline->value<double>("-nev", 1e2);
   output_filename = cmdline->value<string>("-out");
   
