@@ -44,7 +44,12 @@ public:
     _weights.add_entry(v, weight);
     _nentries.add_entry(v, 1.0);
   };
-
+  
+  /// returns the index of the underflow bin
+  unsigned int underflow_bin() const {return _sum.underflow_bin();}
+  /// returns the index of the overflow bin
+  unsigned int overflow_bin()  const {return _sum.overflow_bin();}
+  
   double binlo (int i) const {return _sum.binlo(i);}
   double binhi (int i) const {return _sum.binhi(i);}
   double binmid(int i) const {return _sum.binmid(i);}
