@@ -193,9 +193,11 @@ public:
     return *this;
   };
 
+  // output operations ----------------------------------------------
   /// output a header with the total weight and the mean value of the histogram
   std::ostream & output_total_and_mean(std::ostream & ostr, const std::string & prefix = "# ") {
     ostr << prefix << "total_weight = " << total_weight() << std::endl;
+    ostr << prefix << "n_entries = " << n_entries() << std::endl;
     ostr << prefix << "mean = " << mean() << std::endl;
     return ostr;
   }
@@ -204,7 +206,7 @@ public:
   /// The prefix is used for lines not intended to be used in normal plots
   std::ostream & output(std::ostream & ostr, const std::string & prefix = "# ") {
     output_total_and_mean(ostr, prefix);
-    ostr << prefix << "cols: vlo vmid vhi hist[v] (outflow not normalised)" << std::endl;
+    ostr << prefix << "cols: vlo vmid vhi hist[v]" << std::endl;
     ostr << prefix << "under flow bin " << underflow() << std::endl;
     for (unsigned i = 0; i < size() ; i++) {
       ostr << binlo(i)  << " " 
@@ -221,7 +223,7 @@ public:
   /// The prefix is used for lines not intended to be used in normal plots
   std::ostream & output_diff(std::ostream & ostr, const std::string & prefix = "# ") {
     output_total_and_mean(ostr, prefix);
-    ostr << prefix << "cols: vlo vmid vhi dhist/dv" << std::endl;
+    ostr << prefix << "cols: vlo vmid vhi dhist/dv (outflow not normalised)" << std::endl;
     ostr << prefix << "under flow bin " << underflow() << std::endl;
     for (unsigned i = 0; i < size() ; i++) {
       ostr << binlo(i)  << " " 

@@ -2,12 +2,14 @@
 #include "SimpleHist.hh"
 using namespace Catch::literals;
 
+// a dummy test case.
 TEST_CASE( "other", "[other]" ) {
   REQUIRE(2==2);
 }
 
   
 TEST_CASE( "SimpleHist", "[SimpleHist]" ) {
+  bool verbose = false;
   SimpleHist hist(0.0, 10.0, 2.0);
 
   SECTION("Size constraints") {
@@ -32,9 +34,11 @@ TEST_CASE( "SimpleHist", "[SimpleHist]" ) {
     REQUIRE(hist.n_entries()    == 5.0_a);
     REQUIRE(hist.mean()         == 3.888888888888888888888888_a);
 
-    // hist.output(std::cout) << std::endl; 
-    // hist.output_diff(std::cout) << std::endl;
-    // hist.output_cumul(std::cout) << std::endl;
+    if (verbose) {
+      hist.output(std::cout) << std::endl; 
+      hist.output_diff(std::cout) << std::endl;
+      hist.output_cumul(std::cout) << std::endl;
+    }
   }
 
   SimpleHist hist2(hist);
