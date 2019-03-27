@@ -31,7 +31,7 @@ public:
   /// a way to set non-default limits  and then add an entry
   void set_lims_add_entry(double xmin, double xmax, double dx, double val, double weight = 1.0) {
     if (_first_call) {
-      this->declare(xmin, xmax, dx);
+      T::declare(xmin, xmax, dx);
       _first_call = false;
     }
     this->add_entry(val, weight);
@@ -40,7 +40,7 @@ public:
   /// this one can be used for AveragingHist
   void set_lims_add_entry(double xmin, double xmax, double dx, double val, double contents, double weight) {
     if (_first_call) {
-      this->declare(xmin, xmax, dx);
+      T::declare(xmin, xmax, dx);
       _first_call = false;
     }
     this->add_entry(val, contents, weight);
@@ -49,12 +49,16 @@ public:
   /// this one can be used for CorrelationHist
   void set_lims_add_entry(double xmin, double xmax, double dx, double val, double varA, double varB, double weight) {
     if (_first_call) {
-      this->declare(xmin, xmax, dx);
+      T::declare(xmin, xmax, dx);
       _first_call = false;
     }
     this->add_entry(val, varA, varB, weight);
   }
 
+  TemplateDefaultHist & declare(double minv, double maxv, double bin_size) {
+    T::declare(minv,maxv,bin_size);
+    return *this;
+  }
 
   static void set_defaults(double xmin, double xmax, double dx) {
     _lo = xmin;
@@ -85,16 +89,42 @@ typedef TemplateDefaultHist<CorrelationHist> DefaultCorrelationHist;
 class AverageAndErrorWithRef : public AverageAndError {
 public:
   AverageAndErrorWithRef() :  internal_ref(false) {}
+  inline void add(double x) {
+    AverageAndError::add(x);
+    add_for_minmax(x);
+  }
+
+  inline void add_for_minmax(double x) {
+    if (x < _min) _min = x;
+    if (x > _max) _max = x;
+  }
+  
   void add_entry(double value, double evwgt) {
-    *this              += value*evwgt;
+    AverageAndError::add(value*evwgt);
+    add_for_minmax(value);
     ref_xsection_value += evwgt;
     internal_ref        = true;
+  }
+  AverageAndErrorWithRef & set_ref(std::string ref) {
+    ref_xsection = ref;
+    return *this;
   }
   /// the name of the reference cross section that will be used
   /// to normalise this average
   string ref_xsection;
   AverageAndError ref_xsection_value;
   bool   internal_ref;
+
+    /// return the the minimum value encountered
+  double min() const {return _min;}
+  /// return the the maximum value encountered
+  double max() const {return _max;}
+  
+private:
+  /// internal store of the bounds
+  /// (note the _min starts as numeric_limits<double>::max() because then any thing smaller
+  /// than that will immediately register as the minimum)
+  double _min = std::numeric_limits<double>::max(), _max=-std::numeric_limits<double>::max();
 };
 
 //------------------------------------------------------------
@@ -133,6 +163,12 @@ public:
   // this returns the weight of the current event
   // (only valid after a call to generate_event)
   virtual double event_weight() {return event_weight_;}
+
+  /// for things a derivative of the framework might do
+  /// after event analysis (keeping in mind that anything
+  /// to ge done beforehand can go into generate_event()).
+  /// (e.g. for things related to analysis timing).
+  virtual void post_analyse_event() {}
   
   /// let the user fill their histograms, etc.
   virtual void user_analyse_event() {}
@@ -158,7 +194,7 @@ public:
   bool periodic_output_is_due() {
     if (iev - iev_last_output < output_interval) return false;
     iev_last_output = iev;
-    if (output_interval * (1.0/iev) > 0.05) output_interval *= 2;
+    if (output_interval * (1.0/iev) < 0.05000000001) output_interval *= 2;
     return true;
   }
   
@@ -205,7 +241,7 @@ protected:
 
   CmdLine * cmdline_;
 
-  unsigned long long int iev = 0, nev = 0, output_interval = 1, iev_last_output=0;
+  unsigned long long int iev = 0, nev = 0, output_interval = 10, iev_last_output=0;
 
   template<class T> vector<string> ordered_labels(Collection<T> & collection) {
     std::vector<string> labels;

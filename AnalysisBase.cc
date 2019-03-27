@@ -49,6 +49,9 @@ void AnalysisBase::run() {
     // end of each event
     for (auto & hist: gen_hists) hist.second.collate_event();
 
+    // do anything else that's needed at the end of the analysis
+    post_analyse_event();
+
     // update event number before checking whether to write
     iev++;
     if (periodic_output_is_due()) standard_output();
@@ -65,8 +68,10 @@ void AnalysisBase::standard_output() {
   ofstream ostr(output_filename.c_str());
 
   ostr << header.str();
+  ostr << "#---------------------------------------------------- " << endl;
   ostr << "# time now = " << cmdline->time_stamp() << endl;
   ostr << "# nev generated = " << iev << endl;
+  ostr << "#---------------------------------------------------- " << endl;
 
   // normalisation factor to be used throughout
   double norm = weight_factor();
@@ -110,9 +115,12 @@ void AnalysisBase::standard_output() {
     else if(obj.internal_ref) 
       ostr << ", xsection = " << obj.ref_xsection_value.sum()*norm << " nb)";
     else               ostr << ", wrt "<< obj.ref_xsection << ")";
+    ostr << ", range=[" << obj.min() << " -- " << obj.max() << "]";
     ostr << endl;
   }
 
+  ostr << "#---------------------------------------------------- " << endl;
+  
   // write out normal histograms
   for (const auto & label: ordered_labels(hists)) {
     const auto & obj = hists[label];
