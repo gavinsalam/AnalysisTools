@@ -36,15 +36,7 @@
 
 class SimpleHist {
 public:
-  SimpleHist() {};
-  SimpleHist(double minv, double maxv, int n): 
-    _minv(minv), _maxv(maxv), _dv((maxv-minv)/n), _weights(n+1) {
-    _weights = 0.0;
-    _weight_v = 0.0;
-    _weight_vsq = 0.0;
-    _have_total = false;
-    _n_entries = 0.0;
-  }
+  SimpleHist() {}
 
   SimpleHist(double minv, double maxv, unsigned int n) {
     declare(minv, maxv, n);
@@ -65,8 +57,9 @@ public:
 
   // declare (or redeclare) the histogram
   void declare(double minv, double maxv, unsigned int n) {
-    _minv = minv; _maxv = maxv; _dv = (maxv-minv)/n; 
-    _weights.resize(n+1);
+    _minv = minv; _maxv = maxv; _dv = (maxv-minv)/n;
+    // weights includes space for two overflow bins
+    _weights.resize(n+2);
     reset();
   }
 
@@ -81,23 +74,34 @@ public:
     _n_entries = 0.0;
   }
 
-  double min() const {return _minv;};
-  double max() const {return _maxv;};
-  /// returns the size of the histogram proper
+  double min() const {return _minv;}
+  double max() const {return _maxv;}
+  
+  /// returns the size of the histogram proper (excluding outflow bins)
   unsigned int size() const {
     unsigned outflow_sz = _weights.size();
-    assert(outflow_sz > 0); // help capture uninitialised histogram bugs
-    return outflow_sz-1;
+    assert(outflow_sz > 1); // help capture uninitialised histogram bugs
+    return outflow_sz-2;
   }
   /// returns the size of the histogram plus outflow bin
   unsigned int outflow_size() const {return _weights.size();};
 
   double & operator[](int i) {_have_total = false; return _weights[i];};
   const double & operator[](int i) const {return _weights[i];};
+
+  /// returns the index of the underflow bin
+  unsigned int underflow_bin() const {return size();}
+  /// returns the index of the overflow bin
+  unsigned int overflow_bin() const {return size()+1;}
   
-  /// returns the outflow bin
-  double & outflow() {return _weights[size()];};
-  const double & outflow() const {return _weights[size()];};
+  /// returns the outflow bins
+  double & underflow() {return _weights[underflow_bin()];}
+  double & overflow()  {return _weights[overflow_bin()];}
+  const double & underflow() const {return _weights[underflow_bin()];}
+  const double & overflow()  const {return _weights[overflow_bin()];}
+  
+  /// returns the total outflow (underflow and overflow)
+  double outflow() const {return underflow() + overflow();}
 
   double binlo (int i) const {return i*_dv + _minv;};
   double binhi (int i) const {return (i+1)*_dv + _minv;};
@@ -105,17 +109,16 @@ public:
   double binsize()     const {return _dv;};
 
   unsigned int bin(double v) const {
-    if (v >= _minv && v < _maxv) {
-      int i = int((v-_minv)/_dv); 
-      if (i >= 0) {
-        // do unsigned comparisons to avoid issues with huge
-        // histograms
-        unsigned unsigned_i = unsigned(i);
-        if (unsigned_i < size()) {return unsigned_i;} 
-      }
-    }
-    // otherwise...
-    return size();
+    double v_minus_minv_over_dv = (v-_minv)/_dv;
+
+    // handle underflow case
+    if (v_minus_minv_over_dv < 0.0) return underflow_bin();
+    // handle overflow case
+    if (v_minus_minv_over_dv >= size()) return overflow_bin();
+
+    // otherwise just return a bin index, which is bound to be in
+    // range given the above two tests
+    return unsigned(v_minus_minv_over_dv);
   }
 
   /// return the mean value of all events given to histogram
@@ -190,7 +193,62 @@ public:
     return *this;
   };
 
+  /// output a header with the total weight and the mean value of the histogram
+  std::ostream & output_total_and_mean(std::ostream & ostr, const std::string & prefix = "# ") {
+    ostr << prefix << "total_weight = " << total_weight() << std::endl;
+    ostr << prefix << "mean = " << mean() << std::endl;
+    return ostr;
+  }
 
+  /// output the histogram, including the header.
+  /// The prefix is used for lines not intended to be used in normal plots
+  std::ostream & output(std::ostream & ostr, const std::string & prefix = "# ") {
+    output_total_and_mean(ostr, prefix);
+    ostr << prefix << "cols: vlo vmid vhi hist[v] (outflow not normalised)" << std::endl;
+    ostr << prefix << "under flow bin " << underflow() << std::endl;
+    for (unsigned i = 0; i < size() ; i++) {
+      ostr << binlo(i)  << " " 
+           << binmid(i) << " "
+           << binhi(i) << " "
+           << (*this)[i] << std::endl;
+    }
+    ostr << prefix << "over flow bin " << overflow() << std::endl;
+    return ostr;
+  }
+  
+  /// output the histogram, including the header, as a differential
+  /// histogram d/dv. Outflow bins don't get any bin width normalisaion
+  /// The prefix is used for lines not intended to be used in normal plots
+  std::ostream & output_diff(std::ostream & ostr, const std::string & prefix = "# ") {
+    output_total_and_mean(ostr, prefix);
+    ostr << prefix << "cols: vlo vmid vhi dhist/dv" << std::endl;
+    ostr << prefix << "under flow bin " << underflow() << std::endl;
+    for (unsigned i = 0; i < size() ; i++) {
+      ostr << binlo(i)  << " " 
+           << binmid(i) << " "
+           << binhi(i) << " "
+           << (*this)[i] / (binhi(i) - binlo(i)) << std::endl;
+    }
+    ostr << prefix << "over flow bin " << overflow() << std::endl;
+    return ostr;
+  }
+  
+  /// output the cumulative histogram.
+  /// The prefix is used for lines not intended to be used in normal plots
+  std::ostream & output_cumul(std::ostream & ostr, const std::string & prefix = "# ") {
+    output_total_and_mean(ostr, prefix);
+    double cumul = underflow();
+    ostr << prefix << "cols: v hist_integral_up_to_v" << std::endl;
+    ostr << min() << " " << cumul << std::endl;
+    for (unsigned i = 0; i < size(); i++) {
+      cumul += (*this)[i];
+      ostr << binhi(i) << " " << cumul << std::endl;
+    }
+    cumul += overflow();
+    ostr << prefix << "with_overflow " << cumul << std::endl;
+    return ostr;
+  }
+  
   friend SimpleHist operator*(const SimpleHist & hist, double fact);
   friend SimpleHist operator/(const SimpleHist & hist, double fact);
 

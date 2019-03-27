@@ -180,6 +180,7 @@ protected:
 
   // 1D type quantities
   Collection<DefaultHist> hists; //< histograms normalised as a differential cross section on output
+  Collection<DefaultHist> cumul_hists; //< similar to hists, but one outputs the cumulative histogram as well
   Collection<DefaultHist> norm_hists; //< histograms normalised to have total weight of 1 on output
   Collection<DefaultAveragingHist> avg_hists;
   Collection<DefaultCorrelationHist> corr_hists;
