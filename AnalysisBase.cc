@@ -131,7 +131,7 @@ void AnalysisBase::standard_output() {
   }
 
   for (const auto & label: ordered_labels(cumul_hists)) {
-    const auto & obj = hists[label];
+    const auto & obj = cumul_hists[label];
     // ostr << "# plain_hist:" << label << " [binlo binmid binhi d/dbinvar]" << endl;
     // output(obj, &ostr, norm/obj.binsize());
     ostr << "# diff_hist:" << label << endl;
