@@ -70,7 +70,7 @@ void AnalysisBase::standard_output() {
   ostr << header.str();
   ostr << "#---------------------------------------------------- " << endl;
   ostr << "# time now = " << cmdline->time_stamp() << endl;
-  ostr << "# nev generated = " << iev << endl;
+  ostr << "# nev = " << iev << endl;
   ostr << "#---------------------------------------------------- " << endl;
 
   // normalisation factor to be used throughout
