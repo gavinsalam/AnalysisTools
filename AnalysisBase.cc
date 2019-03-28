@@ -21,7 +21,11 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in) : cmdline(cmdline_in) {
 
   header << cmdline->header();
   nev = cmdline->value<double>("-nev", 1e2);
-  output_filename = cmdline->value<string>("-out");
+  if (cmdline->present("-o")) {
+    output_filename = cmdline->value<string>("-o");
+  } else {
+    output_filename = cmdline->value<string>("-out");
+  }
   
 }
 
