@@ -42,6 +42,13 @@ public:
     declare(minv, maxv, n);
   }
 
+  // NB: the int case is needed because if one passes an
+  // int then compiler doesn't know whether to convert
+  // to unsigned or double.
+  SimpleHist(double minv, double maxv, int n) {
+    declare(minv, maxv, unsigned(n));
+  }
+
   SimpleHist(double minv, double maxv, double bin_size) {
     declare(minv, maxv, bin_size);
   }
