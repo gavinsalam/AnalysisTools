@@ -203,8 +203,8 @@ protected:
   CmdLine * cmdline;
 
   /// for things that the framework sets up ahead of time;
-  virtual void pre_startup() {};
-  virtual void post_startup() {};
+  virtual void pre_startup() {}
+  virtual void post_startup() {}
   virtual void standard_output();
 
 
