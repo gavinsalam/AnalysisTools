@@ -205,8 +205,10 @@ protected:
   /// for things that the framework sets up ahead of time;
   virtual void pre_startup() {}
   virtual void post_startup() {}
+  /// cmdline completeness gets checked before this call
+  virtual void pre_run() {}
   virtual void standard_output();
-
+  
 
   template<class T> using Collection = std::unordered_map<std::string, T>;
 

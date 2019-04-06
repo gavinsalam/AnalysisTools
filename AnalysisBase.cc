@@ -38,6 +38,9 @@ void AnalysisBase::run() {
 
   cmdline->assert_all_options_used();
 
+  pre_run();
+  header << "# time after pre_run initialisation = " << cmdline->time-stamp() << endl;
+  
   /// should this go into a separate event_loop routine?
   for (iev = 0; iev < nev; ) {
 
