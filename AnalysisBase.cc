@@ -131,7 +131,7 @@ void AnalysisBase::standard_output() {
     // ostr << "# plain_hist:" << label << " [binlo binmid binhi d/dbinvar]" << endl;
     // output(obj, &ostr, norm/obj.binsize());
     ostr << "# diff_hist:" << label << endl;
-    (norm*obj).output_diff(ostr) << endl;
+    (norm*obj).output_diff(ostr) << endl << endl;
   }
 
   for (const auto & label: ordered_labels(cumul_hists)) {
@@ -142,7 +142,7 @@ void AnalysisBase::standard_output() {
     (norm*obj).output_diff(ostr) << endl;
 
     ostr << "# cumul_hist:" << label << endl;
-    (norm*obj).output_cumul(ostr) << endl;
+    (norm*obj).output_cumul(ostr) << endl << endl;
   }
 
   // output gen_hists
