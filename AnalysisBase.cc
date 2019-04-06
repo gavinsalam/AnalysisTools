@@ -131,18 +131,14 @@ void AnalysisBase::standard_output() {
   // write out normal histograms
   for (const auto & label: ordered_labels(hists)) {
     const auto & obj = hists[label];
-    // ostr << "# plain_hist:" << label << " [binlo binmid binhi d/dbinvar]" << endl;
-    // output(obj, &ostr, norm/obj.binsize());
     ostr << "# diff_hist:" << label << endl;
     (norm*obj).output_diff(ostr) << endl << endl;
   }
 
   for (const auto & label: ordered_labels(cumul_hists)) {
     const auto & obj = cumul_hists[label];
-    // ostr << "# plain_hist:" << label << " [binlo binmid binhi d/dbinvar]" << endl;
-    // output(obj, &ostr, norm/obj.binsize());
     ostr << "# diff_hist:" << label << endl;
-    (norm*obj).output_diff(ostr) << endl;
+    (norm*obj).output_diff(ostr) << endl << endl;
 
     ostr << "# cumul_hist:" << label << endl;
     (norm*obj).output_cumul(ostr) << endl << endl;
