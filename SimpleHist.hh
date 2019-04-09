@@ -116,6 +116,11 @@ public:
   double binsize()     const {return _dv;};
 
   unsigned int bin(double v) const {
+    // divide by _dv before checking under/overflow, because 
+    // the sign of _dv (which is not prescribed) affects whether
+    // it is under or overflow. BUT: this does can problems if 
+    // trapping floating point overflow and we have v that
+    // is just at the edge of the numerical domain
     double v_minus_minv_over_dv = (v-_minv)/_dv;
 
     // handle underflow case
