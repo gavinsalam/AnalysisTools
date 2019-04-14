@@ -77,7 +77,9 @@ public:
   /// return the standard deviation of the current bin
   double stddev(int i) const {
     double avg = average(i);
-    double result = sqrt(abs(_sum2[i]/_weights[i] - avg*avg));
+    // put in std::abs just in case rounding errors give us something
+    // negative
+    double result = sqrt(std::abs(_sum2[i]/_weights[i] - avg*avg));
     return result;
   }
 

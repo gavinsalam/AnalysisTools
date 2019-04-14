@@ -97,8 +97,8 @@ public:
       assert(_limits.front() == vmin);
       // back limit may have rounding errors...
       const double tolerance = 1e-7;
-      assert(abs(_limits.back() - vmax)
-             < tolerance * std::max( abs(vmax), abs(_limits.back()-_limits.front())) );
+      assert(std::abs(_limits.back() - vmax)
+             < tolerance * std::max( std::abs(vmax), std::abs(_limits.back()-_limits.front())) );
     }
     add_entry(v, weight);
   }
