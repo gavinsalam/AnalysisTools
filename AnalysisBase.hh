@@ -175,6 +175,7 @@ public:
 
   /// any extra output
   virtual void user_output(std::ostream &) {}
+  virtual void generator_output(std::ostream &) {}
 
   /// set the default binning for each kind of histogram
   void set_default_binning(double xmin, double xmax, double dx) {

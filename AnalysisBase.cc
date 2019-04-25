@@ -192,11 +192,9 @@ void AnalysisBase::standard_output() {
     output(obj, &ostr, norm/obj.u_binsize()/obj.v_binsize());
     ostr << endl << endl;
   }
-  
-//   output_collection(ostr, norm_hists, "norm_hist:",
-//                     [ ](const DefaultHist & hist) {return 1.0/hist.total_weight()/hist.binsize();});
-// 
-//   output_collection(ostr, avg_hists, "avg_hist:",
-//                     [ ](const DefaultAveragingHist & hist) {return 1.0;});
-//
+
+  // provide any additional output, for example warnings (maybe
+  // warnings should be incorporated into AnalysisTools?)
+  user_output(ostr);
+  generator_output(ostr);
 }
