@@ -31,45 +31,34 @@
 #include<string>
 #include<cmath>
 #include<iostream>
-#include<cassert>
 #include<vector>
+#include "Binning.hh"
 
-class SimpleHist {
+class SimpleHist : public Binning {
 public:
   SimpleHist() {}
 
-  SimpleHist(double minv, double maxv, unsigned int n) {
-    declare(minv, maxv, n);
+  SimpleHist(double minv, double maxv, unsigned int n) : Binning (minv,maxv,n) {
+    _init();
   }
 
   // NB: the int case is needed because if one passes an
   // int then compiler doesn't know whether to convert
   // to unsigned or double.
-  SimpleHist(double minv, double maxv, int n) {
-    declare(minv, maxv, unsigned(n));
+  SimpleHist(double minv, double maxv, int n) : Binning (minv,maxv,n) {
+    _init();
   }
 
-  SimpleHist(double minv, double maxv, double bin_size) {
-    declare(minv, maxv, bin_size);
+  SimpleHist(double minv, double maxv, double bin_size) : Binning (minv,maxv,bin_size)  {
+    _init();
   }
 
-  // declare (or redeclare) the histogram
-  void declare(double minv, double maxv, double bin_size) {
-    declare(minv, maxv, int(0.5+std::abs((maxv-minv)/bin_size)));
-  }
-
-  void declare(double minv, double maxv, int n) {
-    declare(minv, maxv, unsigned(n));
-  }
-
-  // declare (or redeclare) the histogram
-  void declare(double minv, double maxv, unsigned int n) {
-    _minv = minv; _maxv = maxv; _dv = (maxv-minv)/n;
-    // weights includes space for two overflow bins
-    _weights.resize(n+2);
+  /// initialise the histogram, assuming the binning has already been set up
+  void _init() override {
+    _weights.resize(outflow_size());
     reset();
   }
-
+  
   /// reset the contents of the histogram to zero (does not
   /// modify the histogram bounds)
   void reset() {
@@ -81,26 +70,9 @@ public:
     _n_entries = 0.0;
   }
 
-  double min() const {return _minv;}
-  double max() const {return _maxv;}
-  
-  /// returns the size of the histogram proper (excluding outflow bins)
-  unsigned int size() const {
-    unsigned outflow_sz = _weights.size();
-    assert(outflow_sz > 1); // help capture uninitialised histogram bugs
-    return outflow_sz-2;
-  }
-  /// returns the size of the histogram plus outflow bin
-  unsigned int outflow_size() const {return _weights.size();};
-
   double & operator[](int i) {_have_total = false; return _weights[i];};
   const double & operator[](int i) const {return _weights[i];};
 
-  /// returns the index of the underflow bin
-  unsigned int underflow_bin() const {return size();}
-  /// returns the index of the overflow bin
-  unsigned int overflow_bin() const {return size()+1;}
-  
   /// returns the outflow bins
   double & underflow() {return _weights[underflow_bin()];}
   double & overflow()  {return _weights[overflow_bin()];}
@@ -109,29 +81,6 @@ public:
   
   /// returns the total outflow (underflow and overflow)
   double outflow() const {return underflow() + overflow();}
-
-  double binlo (int i) const {return i*_dv + _minv;};
-  double binhi (int i) const {return (i+1)*_dv + _minv;};
-  double binmid(int i) const {return (i+0.5)*_dv + _minv;};
-  double binsize()     const {return _dv;};
-
-  unsigned int bin(double v) const {
-    // divide by _dv before checking under/overflow, because 
-    // the sign of _dv (which is not prescribed) affects whether
-    // it is under or overflow. BUT: this does can problems if 
-    // trapping floating point overflow and we have v that
-    // is just at the edge of the numerical domain
-    double v_minus_minv_over_dv = (v-_minv)/_dv;
-
-    // handle underflow case
-    if (v_minus_minv_over_dv < 0.0) return underflow_bin();
-    // handle overflow case
-    if (v_minus_minv_over_dv >= size()) return overflow_bin();
-
-    // otherwise just return a bin index, which is bound to be in
-    // range given the above two tests
-    return unsigned(v_minus_minv_over_dv);
-  }
 
   /// return the mean value of all events given to histogram
   /// including those that were outside the histogram edges
@@ -267,7 +216,6 @@ public:
   friend SimpleHist operator/(const SimpleHist & hist, double fact);
 
 private:
-  double _minv, _maxv, _dv;
   std::valarray<double> _weights;
   std::string _name;
   double _weight_v, _weight_vsq;
