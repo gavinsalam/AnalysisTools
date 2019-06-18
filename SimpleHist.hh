@@ -37,10 +37,8 @@
 class SimpleHist : public Binning {
 public:
   SimpleHist() {}
-
-  SimpleHist(double minv, double maxv, unsigned int n) : Binning (minv,maxv,n) {
-    _init();
-  }
+  SimpleHist(const Binning & binning): Binning(binning) {_init();}
+  SimpleHist(double minv, double maxv, unsigned int n) : Binning (minv,maxv,n) {_init();}
 
   // NB: the int case is needed because if one passes an
   // int then compiler doesn't know whether to convert
@@ -99,16 +97,9 @@ public:
 
   double n_entries() const {return _n_entries;}
 
+  /// add an entry to the bin in which v falls
   void add_entry(double v, double weight = 1.0) {
-    //if (v >= _minv && v < _maxv) {
-    //  int i = int((v-_minv)/_dv); 
-    //  if (i >= 0 && i < int(_weights.size())) _weights[i] += weight;
-    //}
-    _have_total = false;
-    _weights[bin(v)] += weight;
-    _weight_v += weight * v;
-    _weight_vsq += weight * v * v;
-    _n_entries += 1.0;
+    _add_entry_ibin(v, bin(v),weight);
   };
 
   // Operations with constants ---------------------------------------
@@ -118,11 +109,11 @@ public:
     _weight_vsq *= fact;
     _total_weight *= fact;
     return *this;
-  };
+  }
   SimpleHist & operator/=(double fact) {
     *this *= 1.0/fact;
     return *this;
-  };
+  }
 
   // Operations with another histogram -------------------------------
   SimpleHist & operator*=(const SimpleHist & other) {
@@ -215,7 +206,21 @@ public:
   friend SimpleHist operator*(const SimpleHist & hist, double fact);
   friend SimpleHist operator/(const SimpleHist & hist, double fact);
 
-private:
+protected:
+
+  /// add an entry with the bin already worked out
+  /// (NB: this is virtual so that the _add_entry_ibin call in
+  /// add_entry can automatically call derived class add_entry_ibin
+  /// functions).  IT DOES NOT CHECK THAT v and i are consistent
+  virtual void _add_entry_ibin(double v, unsigned ibin, double weight) {
+    _have_total = false;
+    _weights[ibin] += weight;
+    _weight_v += weight * v;
+    _weight_vsq += weight * v * v;
+    _n_entries += 1.0;
+  }
+
+  
   std::valarray<double> _weights;
   std::string _name;
   double _weight_v, _weight_vsq;
