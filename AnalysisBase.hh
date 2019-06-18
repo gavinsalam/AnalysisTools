@@ -7,6 +7,7 @@
 
 #include "SimpleNTuple.hh"
 #include "SimpleHist.hh"
+#include "SimpleHistWithError.hh"
 #include "SimpleHist2D.hh"
 #include "AveragingHist.hh"
 #include "CorrelationHist.hh"
@@ -75,9 +76,10 @@ template <typename T> double TemplateDefaultHist<T>::_hi = 1.0;
 template <typename T> double TemplateDefaultHist<T>::_bin_size = 0.1;
 #endif
 
-typedef TemplateDefaultHist<SimpleHist>    DefaultHist;
-typedef TemplateDefaultHist<AveragingHist> DefaultAveragingHist;
-typedef TemplateDefaultHist<CorrelationHist> DefaultCorrelationHist;
+typedef TemplateDefaultHist<SimpleHist>          DefaultHist;
+typedef TemplateDefaultHist<SimpleHistWithError> DefaultHistWithError;
+typedef TemplateDefaultHist<AveragingHist>       DefaultAveragingHist;
+typedef TemplateDefaultHist<CorrelationHist>     DefaultCorrelationHist;
 
 //----------------------------------------------------------------------
 /// slight variant of average and error, which has the name of
@@ -222,6 +224,10 @@ protected:
   Collection<DefaultHist> hists;
   /// similar to hists, but one outputs the cumulative histogram as well
   Collection<DefaultHist> cumul_hists;
+  /// histograms normalised as a differential cross section on output
+  Collection<DefaultHistWithError> hists_err;
+  /// similar to hists, but one outputs the cumulative histogram as well
+  Collection<DefaultHistWithError> cumul_hists_err;
   /// histograms normalised to have total weight of 1 on output
   Collection<DefaultHist> norm_hists; 
   Collection<DefaultAveragingHist> avg_hists;

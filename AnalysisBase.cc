@@ -144,6 +144,22 @@ void AnalysisBase::standard_output() {
     (norm*obj).output_cumul(ostr) << endl << endl;
   }
 
+  // write out normal histograms with errors and cumulative variants
+  for (const auto & label: ordered_labels(hists_err)) {
+    const auto & obj = hists_err[label];
+    ostr << "# diff_hist:" << label << endl;
+    (norm*obj).output_diff(ostr) << endl << endl;
+  }
+
+  for (const auto & label: ordered_labels(cumul_hists_err)) {
+    const auto & obj = cumul_hists_err[label];
+    ostr << "# diff_hist:" << label << endl;
+    (norm*obj).output_diff(ostr) << endl << endl;
+
+    ostr << "# cumul_hist:" << label << endl;
+    (norm*obj).output_cumul(ostr) << endl << endl;
+  }
+
   // output gen_hists
   for (const auto & label: ordered_labels(gen_hists)) {
     const auto & obj = gen_hists[label];
