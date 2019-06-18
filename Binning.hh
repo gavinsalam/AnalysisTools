@@ -98,8 +98,8 @@ public:
   /// returns the index of the overflow bin
   unsigned int overflow_bin() const {return size()+1;}
 
-  /// dummy destructor
-  ~Binning() {}
+  /// virtual dummy destructor
+  virtual ~Binning() {}
   
 protected:
   double _minv, _maxv, _dv;
