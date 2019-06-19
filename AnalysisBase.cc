@@ -7,6 +7,10 @@ template<> double DefaultHist::_lo =   0.0;
 template<> double DefaultHist::_hi = 100.0;
 template<> double DefaultHist::_bin_size = 1.0;
 
+template<> double DefaultHistWithError::_lo =   0.0;
+template<> double DefaultHistWithError::_hi = 100.0;
+template<> double DefaultHistWithError::_bin_size = 1.0;
+
 template<> double DefaultAveragingHist::_lo =   0.0;
 template<> double DefaultAveragingHist::_hi = 100.0;
 template<> double DefaultAveragingHist::_bin_size = 1.0;
@@ -137,6 +141,22 @@ void AnalysisBase::standard_output() {
 
   for (const auto & label: ordered_labels(cumul_hists)) {
     const auto & obj = cumul_hists[label];
+    ostr << "# diff_hist:" << label << endl;
+    (norm*obj).output_diff(ostr) << endl << endl;
+
+    ostr << "# cumul_hist:" << label << endl;
+    (norm*obj).output_cumul(ostr) << endl << endl;
+  }
+
+  // write out normal histograms with errors and cumulative variants
+  for (const auto & label: ordered_labels(hists_err)) {
+    const auto & obj = hists_err[label];
+    ostr << "# diff_hist:" << label << endl;
+    (norm*obj).output_diff(ostr) << endl << endl;
+  }
+
+  for (const auto & label: ordered_labels(cumul_hists_err)) {
+    const auto & obj = cumul_hists_err[label];
     ostr << "# diff_hist:" << label << endl;
     (norm*obj).output_diff(ostr) << endl << endl;
 
