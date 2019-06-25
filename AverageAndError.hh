@@ -3,6 +3,7 @@
 
 #include<cmath>
 #include<vector>
+#include<limits>
 
 /// micro class to calculate averages and errors
 class AverageAndError {
