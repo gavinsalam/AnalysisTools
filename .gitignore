@@ -1,5 +1,6 @@
 *.bak
 *.o
 *~
+.vscode
 Makefile
 lib*.a
