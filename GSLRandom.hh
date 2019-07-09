@@ -78,6 +78,15 @@ public:
   /// returns true with probability prob
   inline bool accept(double prob) const {return uniform() < prob;}
 
+  /// returns true with probability local_value/max_value
+  inline bool accept(double local_value, double max_value) const {return max_value*uniform() < local_value;}
+
+  /// returns true with probability local_value/max_value
+  /// Before, checks that the local value does not exceed the max value (assertion)
+  inline bool check_and_accept(double local_value, double max_value) const {
+    assert(local_value <= max_value);
+    return accept(local_value, max_value);
+  }
 
   inline std::string name() const {return std::string(gsl_rng_name (_r.get()));}
 
