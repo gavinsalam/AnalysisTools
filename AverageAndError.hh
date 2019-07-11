@@ -91,6 +91,9 @@ public:
   /// return error on standard deviation, given in approximate form as error of sqrt of variance
   inline double error_on_sd() const  { return (_n > 1) ? error_on_variance()/sd()/2. : 0.; }
 
+  /// virtual dummy destructor
+  virtual ~AverageAndError() {};
+  
 private:  
   double _sum, _sum2, _sum3, _sum4;
 
