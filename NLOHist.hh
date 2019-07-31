@@ -139,13 +139,58 @@ public:
     _tmp *= 0.0;
   }
 
+  /// output the cumulative histogram.
+  /// The prefix is used for lines not intended to be used in normal plots
+  std::ostream & output_cumul(std::ostream & ostr, double norm, const std::string & prefix = "# ", bool from_right=false) {
+    _main.output_total_and_mean(ostr, prefix);
+    if (!from_right) {
+      double cumul   = _main.underflow();
+      double cumulsq = sumsqr(_main.underflow_bin());
+      ostr << prefix << "cols: v hist_integral_up_to_v err" << std::endl;
+      ostr << min() << " " << norm*cumul << " " << norm*error_calc(cumul, cumulsq) << std::endl;
+      for (unsigned i = 0; i < _main.size(); i++) {
+        cumul   += _main[i];
+        cumulsq += sumsqr(i);
+        ostr << _main.binhi(i) << " " << norm*cumul << " " << norm*error_calc(cumul, cumulsq) << std::endl;
+      }
+      cumul   += _main.overflow();
+      cumulsq += sumsqr(_main.overflow_bin());
+      ostr << prefix << "with_overflow " << norm*cumul << " +- " << norm*error_calc(cumul, cumulsq) << std::endl;
+    } else {
+      double cumul   = -_main.overflow();
+      double cumulsq = sumsqr(_main.underflow_bin());
+      ostr << prefix << "cols: v hist_integral_up_to_v err" << std::endl;
+      ostr << max() << " " << norm*cumul << " " << norm*error_calc(cumul, cumulsq) << std::endl;
+      int int_size = _main.size();
+      for (int i = int_size-1; i >= 0; i--) {
+        cumul   -= _main[i];
+        cumulsq += sumsqr(i);
+        ostr << _main.binlo(i) << " " << norm*cumul << " " << norm*error_calc(cumul, cumulsq) << std::endl;
+      }
+      cumul   -= _main.underflow();
+      cumulsq += sumsqr(_main.overflow_bin());
+      ostr << prefix << "with_underflow " << norm*cumul << " +- " << norm*error_calc(cumul, cumulsq) << std::endl;
+    }
+    return ostr;
+  } 
+  
+
   /// return the name given to the histogram
   const std::string & name() const {return _name;}
   const double min() const {return _main.min();}
   const double max() const {return _main.max();}
 
-private:
   
+  
+private:
+
+  double error_calc(double sum, double sumsq) const {
+    return std::sqrt(std::abs(sumsq - sum*sum/_nev));
+  }
+  /// returns the sum of squared weights in the bin
+  double & sumsqr(unsigned i)  {return _sqr[i];}
+  
+
   double      _nev, _nev_bad;
   SimpleHist  _main, _sqr, _tmp;
   std::vector<int> _in_use;
