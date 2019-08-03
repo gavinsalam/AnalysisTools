@@ -119,6 +119,9 @@ protected:
   std::valarray<double> _weights_sumsqr;
 };
 
+inline SimpleHistWithError operator*(double fact, const SimpleHistWithError & hist) {
+  return hist*fact;
+}
 inline SimpleHistWithError operator*(const SimpleHistWithError & hist, double fact) {
   SimpleHistWithError result(hist);
   result *= fact;

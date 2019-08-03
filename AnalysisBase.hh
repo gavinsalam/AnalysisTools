@@ -181,7 +181,8 @@ public:
 
   /// set the default binning for each kind of histogram
   void set_default_binning(double xmin, double xmax, double dx) {
-    DefaultHist::set_defaults(xmin, xmax, dx); 
+    DefaultHist::set_defaults(xmin, xmax, dx);
+    DefaultHistWithError::set_defaults(xmin, xmax, dx);
     DefaultAveragingHist::set_defaults(xmin, xmax, dx); 
     DefaultCorrelationHist::set_defaults(xmin, xmax, dx); 
   }
