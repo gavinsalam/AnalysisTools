@@ -227,6 +227,8 @@ protected:
   Collection<DefaultHist> cumul_hists;
   /// histograms normalised as a differential cross section on output
   Collection<DefaultHistWithError> hists_err;
+  /// unit normalised histograms with errors
+  Collection<DefaultHistWithError> norm_hists_err;
   /// similar to hists, but one outputs the cumulative histogram as well
   Collection<DefaultHistWithError> cumul_hists_err;
   /// histograms normalised to have total weight of 1 on output

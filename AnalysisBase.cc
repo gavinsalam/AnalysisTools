@@ -173,6 +173,19 @@ void AnalysisBase::standard_output() {
   }
 
   // output histograms normalised to 1
+  for (const auto & label: ordered_labels(norm_hists_err)) {
+    const auto & obj = norm_hists_err[label];
+    ostr << "# norm_diff_hist:" << label << " [binlo binmid binhi d/dbinvar err]" << endl;
+
+    double hist_weight = obj.total_weight();
+    ostr << "# histogram total x-sect = " 
+         <<  hist_weight * norm << " " << _units_string 
+	 << "( " << obj.n_entries() << " entries)"
+	 << endl;
+    double this_norm = hist_weight != 0.0 ? 1.0/hist_weight : 0;
+    (this_norm*obj).output_diff(ostr) << endl << endl;
+  }
+
   for (const auto & label: ordered_labels(norm_hists)) {
     const auto & obj = norm_hists[label];
     ostr << "# norm_hist:" << label << " [binlo binmid binhi d/dbinvar err]" << endl;
