@@ -181,7 +181,8 @@ public:
 
   /// set the default binning for each kind of histogram
   void set_default_binning(double xmin, double xmax, double dx) {
-    DefaultHist::set_defaults(xmin, xmax, dx); 
+    DefaultHist::set_defaults(xmin, xmax, dx);
+    DefaultHistWithError::set_defaults(xmin, xmax, dx);
     DefaultAveragingHist::set_defaults(xmin, xmax, dx); 
     DefaultCorrelationHist::set_defaults(xmin, xmax, dx); 
   }
@@ -226,6 +227,8 @@ protected:
   Collection<DefaultHist> cumul_hists;
   /// histograms normalised as a differential cross section on output
   Collection<DefaultHistWithError> hists_err;
+  /// unit normalised histograms with errors
+  Collection<DefaultHistWithError> norm_hists_err;
   /// similar to hists, but one outputs the cumulative histogram as well
   Collection<DefaultHistWithError> cumul_hists_err;
   /// histograms normalised to have total weight of 1 on output

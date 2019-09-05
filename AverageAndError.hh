@@ -3,6 +3,7 @@
 
 #include<cmath>
 #include<vector>
+#include<limits>
 
 /// micro class to calculate averages and errors
 class AverageAndError {
@@ -47,13 +48,13 @@ public:
   inline double sum4() const { return _sum4; }
   
   /// return number of events
-  inline int n() const { return _n; }
+  inline long long int n() const { return _n; }
   /// alternative way to return number of events, for consistency with
   /// SimpleHist, AveragingHist, etc
-  inline int n_entries() const { return n(); }
+  inline long long int n_entries() const { return n(); }
   
   /// allow the user to reset the effective value of n
-  inline void set_n(int n_in) { _n = n_in;}
+  inline void set_n(long long int n_in) { _n = n_in;}
 
   /// calculate and return average
   inline double average() const { return (_n > 0) ? _sum/_n : 0. ; }
@@ -69,7 +70,7 @@ public:
   inline double error_on_sum() { return error() * n(); }
 
   /// calculate and return the unbiased sample variance
-  inline double variance() const { return (_n > 1) ? std::abs(_sum2 - _sum*_sum/_n)/(_n-1) : 0.; }
+  inline double variance() const { return (_n > 1) ? std::abs(_sum2 - _sum*_sum/_n)/(_n-1.0) : 0.; }
 
   /// calculate and return the standard deviation (i.e. sqrt of the unbiased sample variance)
   inline double sd() const { return (_n > 1) ? std::sqrt(variance()) : 0.; }
@@ -79,8 +80,8 @@ public:
   /// (see also http://www.talkstats.com/showthread.php/12302-Standard-error-of-the-sample-standard-deviation)
   inline double variance_of_variance() const {
       return  (_n > 1) ? 
-               ( _sum4/_n - 4*_sum3*_sum/pow(_n,2) + ((3-_n)*_sum2*_sum2/pow(_n,2) +
-                 4*(2*_n-3)*_sum2*_sum*_sum/pow(_n,3) + 2*(3-2*_n)*pow(_sum,4)/pow(_n,4) ) / (_n-1) )/_n 
+               ( _sum4/_n - 4*_sum3*_sum/powd(_n,2) + ((3-_n)*_sum2*_sum2/powd(_n,2) +
+                 4*(2*_n-3)*_sum2*_sum*_sum/powd(_n,3) + 2*(3-2*_n)*powd(_sum,4)/powd(_n,4) ) / (_n-1) )/_n 
 	      : 0.; 
   }
   
@@ -89,9 +90,20 @@ public:
 
   /// return error on standard deviation, given in approximate form as error of sqrt of variance
   inline double error_on_sd() const  { return (_n > 1) ? error_on_variance()/sd()/2. : 0.; }
+
+  /// virtual dummy destructor
+  virtual ~AverageAndError() {};
   
-double _sum, _sum2, _sum3, _sum4;
-int _n;
+private:  
+  double _sum, _sum2, _sum3, _sum4;
+
+  // make this long long int so that we can handle subtractions safely
+  // and at the same time go to large numbers of events
+  long long int _n;
+
+  /// a pow operation that converts a long long int to a double to avoid
+  /// the risk of overflow 
+  double powd(long long int i, int p) const {return std::pow(1.0*i,p);}
 
 };
 
