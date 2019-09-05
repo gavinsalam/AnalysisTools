@@ -260,6 +260,7 @@ class NtupleReader(object):
                         (self._iev * self._iev_ratio_truth_to_recorded)
         except AttributeError:
             sigma = float('nan')
+        return sigma
 
     #----------------------------------------------------------------------
     def lumi_invnb(self):
