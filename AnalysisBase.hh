@@ -146,7 +146,7 @@ private:
 /// For now we will structure the class 
 class AnalysisBase {
 public:
-  AnalysisBase(CmdLine * cmdline_in);
+  AnalysisBase(CmdLine * cmdline_in, const string & default_output_filename = "" );
 
   void run();
   
