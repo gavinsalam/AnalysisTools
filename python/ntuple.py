@@ -302,6 +302,7 @@ class EventNtuple(object):
         for item in items:
             parts = item.split('#')
             newname = parts[0].replace('.','__')
+            #newname = parts[0].replace(':','__')
             self.__setattr__(newname,float(parts[1]))
 
     def has(self,item):
