@@ -21,14 +21,19 @@ template<> double DefaultCorrelationHist::_bin_size = 1.0;
 
 
 //======================================================================
-AnalysisBase::AnalysisBase(CmdLine * cmdline_in) : cmdline(cmdline_in) {
-
+AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
+                           const string & default_output_filename) :
+                           cmdline(cmdline_in) {
   header << cmdline->header();
   nev = cmdline->value<double>("-nev", 1e2);
   if (cmdline->present("-o")) {
     output_filename = cmdline->value<string>("-o");
   } else {
-    output_filename = cmdline->value<string>("-out");
+    if(default_output_filename.empty()) {
+      output_filename = cmdline->value<string>("-out");
+    } else {
+      output_filename = cmdline->value<string>("-out",default_output_filename);
+    }
   }
   
 }
