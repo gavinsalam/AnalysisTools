@@ -1,5 +1,6 @@
 #include "AnalysisBase.hh"
 #include <fstream>
+#include <exception>
 
 using namespace std;
 
@@ -82,6 +83,7 @@ void AnalysisBase::standard_output() {
   cout << "Outputting result after generation of " << iev << " events" << endl;
   
   ofstream ostr(output_filename.c_str());
+  if (!ostr.good()) throw runtime_error("Could not write to "+output_filename);
 
   ostr << header.str();
   ostr << "#---------------------------------------------------- " << endl;
