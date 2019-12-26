@@ -81,7 +81,7 @@ public:
   inline double variance_of_variance() const {
       return  (_n > 1) ? 
                ( _sum4/_n - 4*_sum3*_sum/powd(_n,2) + ((3-_n)*_sum2*_sum2/powd(_n,2) +
-                 4*(2*_n-3)*_sum2*_sum*_sum/powd(_n,3) + 2*(3-2*_n)*powd(_sum,4)/powd(_n,4) ) / (_n-1) )/_n 
+                 4*(2*_n-3)*_sum2*_sum*_sum/powd(_n,3) + 2*(3-2*_n)*pow(_sum,4)/powd(_n,4) ) / (_n-1) )/_n 
 	      : 0.; 
   }
   
