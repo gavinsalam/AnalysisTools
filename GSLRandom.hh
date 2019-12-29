@@ -4,7 +4,9 @@
 #include "gsl/gsl_rng.h"
 #include "gsl/gsl_randist.h"
 
+#include <cstdio>
 #include <memory>
+#include <stdexcept>
 #define SHARED_PTR std::shared_ptr
 
 #include <string>
@@ -26,19 +28,43 @@
 ///
 class GSLRandom {
 public:
+  /// create a default GSLRandom generator
   inline GSLRandom() {
     reset(gsl_rng_alloc(gsl_rng_mt19937));
   }
+  /// create a default GSLRandom generator with the specified seed
   inline GSLRandom(unsigned long int s) {
     reset(gsl_rng_alloc(gsl_rng_mt19937));
     set(s);
   }
+  /// create a GSLRandom generator with the specified generator type
   inline GSLRandom(const gsl_rng_type * T) {reset(gsl_rng_alloc(T));}
+
+  /// create a GSLRandom generator with the specified generator type
+  /// and seed
   inline GSLRandom(const gsl_rng_type * T, unsigned long int s) {
     reset(gsl_rng_alloc(T));
     set(s);
   }
 
+  /// create a GSLRandom from a gsl_rng pointer (takes over ownership)
+  inline GSLRandom(gsl_rng * T) {reset(T);}
+
+  /// creates a GSLRandom from 
+  inline GSLRandom(const GSLRandom & orig) : _r(gsl_rng_clone(orig.gsl_generator())) {}
+
+  
+  /// creates a clone of this generator (including its state)
+  inline GSLRandom clone() const {
+    return GSLRandom(gsl_rng_clone(gsl_generator()));
+  };
+
+  /// copies the state of orig into this generator; this one
+  /// must be of the same type as the original.
+  inline void copy_state(const GSLRandom & orig) {
+    gsl_rng_memcpy(gsl_generator(), orig.gsl_generator());
+  }
+  
   inline void reset(gsl_rng * r) {_r.reset(r, gsl_rng_free);}
 
   /// set the seed
@@ -91,6 +117,16 @@ public:
   inline std::string name() const {return std::string(gsl_rng_name (_r.get()));}
 
   inline gsl_rng * gsl_generator() {return _r.get();}
+  inline const gsl_rng * gsl_generator() const {return _r.get();}
+
+  inline void write_state_to_file(const std::string & filename) const {
+    std::FILE * file = std::fopen(filename.c_str(), "wb");
+    if (file == nullptr) throw std::runtime_error("Could not open "+filename);
+    int result = gsl_rng_fwrite(file, gsl_generator());
+    if (result != 0) throw std::runtime_error("Problem writing gsl state to "+filename);
+    result = fclose(file);
+    if (result != 0) throw std::runtime_error("Problem closing "+filename);
+  }
   
   /// no specific destructor
   //inline ~GSLRandom() {}
