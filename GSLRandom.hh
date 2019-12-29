@@ -50,14 +50,9 @@ public:
   /// create a GSLRandom from a gsl_rng pointer (takes over ownership)
   inline GSLRandom(gsl_rng * T) {reset(T);}
 
-  /// creates a GSLRandom from 
-  inline GSLRandom(const GSLRandom & orig) : _r(gsl_rng_clone(orig.gsl_generator())) {}
-
-  
-  /// creates a clone of this generator (including its state)
-  inline GSLRandom clone() const {
-    return GSLRandom(gsl_rng_clone(gsl_generator()));
-  };
+  /// creates a GSLRandom as a clone of an existing generator
+  /// (including its state)
+  inline GSLRandom(const GSLRandom & orig) : GSLRandom(gsl_rng_clone(orig.gsl_generator())) {}
 
   /// copies the state of orig into this generator; this one
   /// must be of the same type as the original.
