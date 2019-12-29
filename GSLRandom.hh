@@ -119,6 +119,7 @@ public:
   inline gsl_rng * gsl_generator() {return _r.get();}
   inline const gsl_rng * gsl_generator() const {return _r.get();}
 
+  /// writes state of the generator to the specified filename
   inline void write_state_to_file(const std::string & filename) const {
     std::FILE * file = std::fopen(filename.c_str(), "wb");
     if (file == nullptr) throw std::runtime_error("Could not open "+filename);
@@ -127,6 +128,17 @@ public:
     result = fclose(file);
     if (result != 0) throw std::runtime_error("Problem closing "+filename);
   }
+
+  /// reads state of the generator from the specified filename
+  inline void read_state_from_file(const std::string & filename) {
+    std::FILE * file = std::fopen(filename.c_str(), "rb");
+    if (file == nullptr) throw std::runtime_error("Could not open "+filename+" for reading");
+    int result = gsl_rng_fread(file, gsl_generator());
+    if (result != 0) throw std::runtime_error("Problem reading gsl state from "+filename);
+    result = fclose(file);
+    if (result != 0) throw std::runtime_error("Problem closing "+filename);
+  }
+
   
   /// no specific destructor
   //inline ~GSLRandom() {}
