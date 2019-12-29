@@ -180,7 +180,8 @@ public:
   const double min() const {return _main.min();}
   const double max() const {return _main.max();}
 
-  
+  // returns the main (i.e. plain event weights) histogram
+  const SimpleHist & main() const {return _main;}
   
 private:
 
