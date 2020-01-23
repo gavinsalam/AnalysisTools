@@ -58,18 +58,21 @@ void AnalysisBase::run() {
 
     bool success = generate_event();
     // what do we do on failure: bail out, or continue round the loop?
-    if (! success) break;
-    
-    total_weight += event_weight();
-
-    user_analyse_event();
-
-    // certain histogram types need collating at the
-    // end of each event
-    for (auto & hist: gen_hists) hist.second.collate_event();
-
-    // do anything else that's needed at the end of the analysis
-    post_analyse_event();
+    // As of 2020-01-23 (GPS), bail out for this event (other than
+    // potential periodic output and iev update), but continue
+    // with subsequent events
+    if (success) {
+      total_weight += event_weight();
+  
+      user_analyse_event();
+  
+      // certain histogram types need collating at the
+      // end of each event
+      for (auto & hist: gen_hists) hist.second.collate_event();
+  
+      // do anything else that's needed at the end of the analysis
+      post_analyse_event();
+    }
 
     // update event number before checking whether to write
     iev++;
