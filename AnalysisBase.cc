@@ -27,6 +27,8 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                            cmdline(cmdline_in) {
   header << cmdline->header();
   nev = cmdline->value<double>("-nev", 1e2);
+  output_interval = cmdline->value<double>("-output-interval", output_interval).
+                      help("sets the initial output interval (which is then progressively increased)");
   if (cmdline->present("-o")) {
     output_filename = cmdline->value<string>("-o");
   } else {
