@@ -102,6 +102,10 @@ public:
   /// returns true with probability local_value/max_value
   inline bool accept(double local_value, double max_value) const {return max_value*uniform() < local_value;}
 
+  /// returns true with probability prob. If prob is 1, accept without
+  /// generating a random number
+  inline bool accept_lazy(double prob) const {return ((prob==1.0) || (accept(prob))); }
+
   /// returns true with probability local_value/max_value
   /// Before, checks that the local value does not exceed the max value (assertion)
   inline bool check_and_accept(double local_value, double max_value) const {
