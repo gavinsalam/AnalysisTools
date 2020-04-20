@@ -146,6 +146,7 @@ public:
   inline std::string hex_state() {
     void * state = gsl_rng_state(gsl_generator());
     std::size_t n = gsl_rng_size(gsl_generator());
+    char * state_char = (char *) state;
     std::ostringstream ostr;
     for (std::size_t i = 0; i < n; i++) {
       ostr << std::setfill('0') << std::setw(2) << std::hex << (0xff & (uint8_t) state_char[i]);
