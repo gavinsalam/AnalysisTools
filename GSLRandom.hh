@@ -7,6 +7,9 @@
 #include <cstdio>
 #include <memory>
 #include <stdexcept>
+// for generator state output as string
+#include <sstream>
+#include <iomanip>
 #define SHARED_PTR std::shared_ptr
 
 #include <string>
@@ -136,6 +139,18 @@ public:
     if (result != 0) throw std::runtime_error("Problem reading gsl state from "+filename);
     result = fclose(file);
     if (result != 0) throw std::runtime_error("Problem closing "+filename);
+  }
+
+  /// returns a string with a hexadecimal string representation of the
+  /// state of the generator
+  inline std::string hex_state() {
+    void * state = gsl_rng_state(gsl_generator());
+    std::size_t n = gsl_rng_size(gsl_generator());
+    std::ostringstream ostr;
+    for (std::size_t i = 0; i < n; i++) {
+      ostr << std::setfill('0') << std::setw(2) << std::hex << (0xff & (uint8_t) state_char[i]);
+    }
+    return ostr.str();
   }
 
   

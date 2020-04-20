@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - new output routines for `SimpleHist`: `output(...)`
       `output_cumul(...)`, `output_diff(...)`, and
       `output_header(...)`
-      
+    - GSLRandom has options for i/o of generator state
+    
 ### Changed
     - SimpleHist now has underflow and overflow bins (access indices
       with `underflow_bin()` and `overflow_bin()` and the bins
