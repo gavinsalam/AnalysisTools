@@ -280,6 +280,25 @@ inline SimpleHist2D pow2(const SimpleHist2D & hist) {
 /// output the histogram to standard output -- an operator<< might
 /// have seemed nice, but less easy to generalize to multiple
 /// histograms; the output is multipled by the factor norm.
+inline void output_compact(const SimpleHist2D & hist0, 
+                   std::ostream * ostr = (&std::cout),
+                   double norm = 1.0) {
+  for (unsigned iu = 0; iu < hist0.nu(); iu++) {
+  for (unsigned iv = 0; iv < hist0.nv(); iv++) {
+    *ostr << hist0.u_binmid(iu) << " "
+          << hist0.v_binmid(iv) << " "
+          << hist0(iu,iv)*norm << std::endl;
+  }
+  // make it readable by gnuplot
+  *ostr << std::endl;
+  }
+}
+
+
+
+/// output the histogram to standard output -- an operator<< might
+/// have seemed nice, but less easy to generalize to multiple
+/// histograms; the output is multipled by the factor norm.
 inline void output(const SimpleHist2D & hist0, 
                    std::ostream * ostr = (&std::cout),
                    double norm = 1.0) {

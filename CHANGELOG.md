@@ -6,11 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+    - added hists_2d_compact, which output only bin centres
     - a set of unit-tests for `SimpleHist` in unit-test/
     - new output routines for `SimpleHist`: `output(...)`
       `output_cumul(...)`, `output_diff(...)`, and
       `output_header(...)`
     - GSLRandom has options for i/o of generator state
+    
     
 ### Changed
     - SimpleHist now has underflow and overflow bins (access indices

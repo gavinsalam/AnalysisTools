@@ -239,7 +239,10 @@ protected:
   typedef Collection<NLOHistGeneric>::iterator GenHistIt;
 
   // 2d quantities
+  /// 2d-histograms, where all bin edges get written out
   Collection<SimpleHist2D> hists_2d;
+  /// 2d-histograms, where only bin midpoint coordinates get written out
+  Collection<SimpleHist2D> hists_2d_compact;
 
   
   std::ostringstream header;

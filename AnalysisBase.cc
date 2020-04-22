@@ -230,11 +230,19 @@ void AnalysisBase::standard_output() {
     ostr << endl << endl;
   }
 
-  // output 2d histograms
+  // output normal 2d histograms
   for (const auto & label: ordered_labels(hists_2d)) {
     const auto & obj = hists_2d[label];
     ostr << "# 2d_hist:" << label << " [xlo xmid xhi ylo ymid yhi dN/dxdy] " << endl;
     output(obj, &ostr, norm/obj.u_binsize()/obj.v_binsize());
+    ostr << endl << endl;
+  }
+
+  // output compact 2d histograms
+  for (const auto & label: ordered_labels(hists_2d_compact)) {
+    const auto & obj = hists_2d_compact[label];
+    ostr << "# 2d_hist_compact:" << label << " [xmid ymid dN/dxdy] " << endl;
+    output_compact(obj, &ostr, norm/obj.u_binsize()/obj.v_binsize());
     ostr << endl << endl;
   }
 
