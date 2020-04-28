@@ -13,6 +13,7 @@
 #define SHARED_PTR std::shared_ptr
 
 #include <string>
+#include <functional>
 
 /// A (partial) C++ interface to the GSL random number generators;
 ///
@@ -154,6 +155,17 @@ public:
     return ostr.str();
   }
 
+  /// returns a string with a C++ hash of the hexadecimal string
+  /// representation of the state of the generator. 
+  ///
+  /// Note: the hash is whatever C++ uses for its unordered maps, and is
+  /// not guaranteed to be free of collisions. It's mainly intended to
+  /// be helpful in debugging, e.g. to have a quick, rough check of
+  /// whether the generator is in the same state across two different
+  /// processes.
+  inline std::size_t hash_hex_state() {
+    return std::hash<std::string>{}(hex_state());
+  }
   
   /// no specific destructor
   //inline ~GSLRandom() {}
