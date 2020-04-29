@@ -61,6 +61,11 @@ public:
     return *this;
   }
 
+  TemplateDefaultHist & declare(const Binning & binning) {
+    T::declare(binning);
+    return *this;
+  }
+
   static void set_defaults(double xmin, double xmax, double dx) {
     _lo = xmin;
     _hi = xmax;

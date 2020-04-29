@@ -17,7 +17,6 @@ public:
     _init();
   }
 
-  
   void _init() override {
     SimpleHist::_init();
     _weights_sumsqr.resize(outflow_size());
