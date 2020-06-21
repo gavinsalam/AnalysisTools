@@ -7,8 +7,6 @@ various histogramming, ntuple, etc. facilities.
 Authors
 -------
 
-Contributions have been made to this code by
-
-- Matteo Cacciari
-- Gavin Salam
-- Gregory Soyez
+This code was originally written by Matteo Cacciari, Gavin Salam and
+Gregory Soyez. It has since received contributions also from Keith 
+Hamilton and Pier Monni.
