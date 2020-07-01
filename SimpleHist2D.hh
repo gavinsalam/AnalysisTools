@@ -54,6 +54,18 @@ public:
     _have_total = false;
   }
 
+  SimpleHist2D & declare_once(double minu, double maxu, unsigned int nu,
+	            double minv, double maxv, unsigned int nv) {
+    if (_weights.size() == 0) declare(minu,maxu,nu, minv,maxv,nv);
+    return *this;
+  }
+  SimpleHist2D & declare_once(double minu, double maxu, double bin_size_u,
+	                      double minv, double maxv, double bin_size_v) {
+    if (_weights.size() == 0) declare(minu,maxu,bin_size_u,
+                                      minv,maxv,bin_size_v);
+    return *this;
+  }
+  
   double u_min() const {return _minu;};
   double u_max() const {return _maxu;};
   unsigned nu () const {return _nu;};
