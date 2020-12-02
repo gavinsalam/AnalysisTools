@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Small library to read the ntuples produced by the generator
 framework's SimpleNtuple class
 
@@ -37,6 +37,7 @@ from builtins import object
 import re
 import gzip
 import sys
+from math import *
 
 #======================================================================
 def main():
@@ -45,7 +46,8 @@ def main():
     parser.add_argument("-l","--list-entries", action='store_true', help='list the entries (keys) that are present')
     parser.add_argument("--nev", default=1000, type=float, help="default number of events to process")
     parser.add_argument("--show", metavar="key1[,key2[,...]]", help="show the values of the keys, provided as a comma-separated list")
-    parser.add_argument("--select", default=None, help="condition that must be satisfied in order to show/average something; if required elements from the condition are missing, the condition is considered to be false")
+    parser.add_argument("--select", default=None, help="condition that must be satisfied in order to show/average something; if required elements from the condition are missing, the condition is considered to be false; each event is ev, so use a function such as 'ev.x>1'")
+    parser.add_argument("--eval", default=None, help="evaluate the expression provided")
     parser.add_argument("--out","-o",default=sys.stdout,type=argparse.FileType('w'),
                         help='output file, default = stdout')
     parser.add_argument("filename")
@@ -55,7 +57,7 @@ def main():
     print("#",args, file=args.out)
 
     if (args.select is not None):
-        select = return_selector(args.select)
+        select = return_eval(args.select)
     else:
         def select(ev): return True
         
@@ -89,7 +91,16 @@ def main():
                 except KeyError:
                     out += "None "
             print(out, file=args.out)
-            
+    elif (args.eval):
+        reader = NtupleReader(args.filename, args.nev)
+        print(f"# {args.eval}", file=args.out)
+        evaluator = return_eval(args.eval)
+        for ev in reader:
+            try:
+                if (not select(ev)): continue
+            except AttributeError: continue
+            print(evaluator(ev))
+
 #----------------------------------------------------------------------
 class NtupleReader(object):
     def __init__(self, filename, nev_max = None):
@@ -313,9 +324,9 @@ class EventNtuple(object):
 
 
 #----------------------------------------------------------------------
-def return_selector(condition):
+def return_eval(string_to_lambda):
     """Return a function that selects based on the condition"""
-    exec("def _select(ev): return ("+condition+")")
+    _select = eval(f"lambda ev: {string_to_lambda}")
     return _select
 
     
