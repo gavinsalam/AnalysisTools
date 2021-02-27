@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <memory>
 #include <stdexcept>
+#include <cassert>
 // for generator state output as string
 #include <sstream>
 #include <iomanip>
