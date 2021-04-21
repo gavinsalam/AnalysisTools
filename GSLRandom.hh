@@ -49,6 +49,7 @@ public:
   /// and seed
   inline GSLRandom(const gsl_rng_type * T, unsigned long int s) {
     reset(gsl_rng_alloc(T));
+    _seed = s;
     set(s);
   }
 
@@ -68,7 +69,10 @@ public:
   inline void reset(gsl_rng * r) {_r.reset(r, gsl_rng_free);}
 
   /// set the seed
-  inline void set(unsigned long int s) {gsl_rng_set(_r.get(), s);}
+  inline void set(unsigned long int s) {
+    _seed = s;
+    gsl_rng_set(_r.get(), s);
+  }
 
   /// returns in range [0,1) (includes 0, excludes 1)
   inline double uniform() const {return gsl_rng_uniform(_r.get());}
@@ -168,10 +172,21 @@ public:
     return std::hash<std::string>{}(hex_state());
   }
   
+  unsigned long int seed() const {return _seed;}
+
+  std::string description() const {
+    std::ostringstream ostr;
+    ostr << "GSLRandom with rng = " << name() << " with seed = " << seed();
+    return ostr.str();
+  }
+
+  inline static unsigned long int default_seed() {return gsl_rng_default_seed;}
+
   /// no specific destructor
   //inline ~GSLRandom() {}
 protected:
   SHARED_PTR<gsl_rng> _r;
+  unsigned long int _seed = gsl_rng_default_seed;
 };
 
 #endif // __GSLRANDOM_HH__
