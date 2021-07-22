@@ -108,7 +108,7 @@ public:
   /// returns an integer in the range [lo, hi-1]. 
   /// NB: hi must be >= lo
   inline long int uniform_int(int lo, int hi) const {
-    int n = hi - lo;
+    unsigned long int n = hi - lo;
     return lo + uniform_int(n);
   }
 
