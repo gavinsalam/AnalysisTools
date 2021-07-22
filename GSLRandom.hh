@@ -105,6 +105,13 @@ public:
   inline unsigned long int uniform_int(unsigned long int n) const {
     return n > 1 ? gsl_rng_uniform_int(_r.get(), n) : 0;}
 
+  /// returns an integer in the range [lo, hi-1]. 
+  /// NB: hi must be >= lo
+  inline long int uniform_int(int lo, int hi) const {
+    int n = hi - lo;
+    return lo + uniform_int(n);
+  }
+
   /// returns true with probability prob
   inline bool accept(double prob) const {return uniform() < prob;}
 
