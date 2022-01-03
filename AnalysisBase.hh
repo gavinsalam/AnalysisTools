@@ -260,6 +260,7 @@ protected:
   std::string _units_string;
 
   unsigned long long int iev = 0, nev = 0, output_interval = 10, iev_last_output=0;
+  double max_time_s = -1.0;
 
   template<class T> vector<string> ordered_labels(Collection<T> & collection) {
     std::vector<string> labels;

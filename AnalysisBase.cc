@@ -27,6 +27,7 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                            cmdline(cmdline_in) {
   header << cmdline->header();
   nev = cmdline->value<double>("-nev", 1e2);
+  max_time_s = cmdline->value<double>("-max-time",-1.0).help("Maximum time (in seconds) that the code should run for");
   output_interval = cmdline->value<double>("-output-interval", output_interval).
                       help("sets the initial output interval (which is then progressively increased)");
   if (cmdline->present("-o")) {
@@ -77,6 +78,9 @@ void AnalysisBase::run() {
     // update event number before checking whether to write
     iev++;
     if (periodic_output_is_due()) standard_output();
+
+    // allow an escape route if we've exceeded the allowed time
+    if (max_time_s > 0.0 && cmdline->time_elapsed_since_start() > max_time_s) break;
   }
   // arrange for final output
   standard_output();
@@ -92,7 +96,12 @@ void AnalysisBase::standard_output() {
 
   ostr << header.str();
   ostr << "#---------------------------------------------------- " << endl;
-  ostr << "# time now = " << cmdline->time_stamp() << endl;
+  ostr << "# time now = " << cmdline->time_stamp();
+  std::streamsize prec = ostr.precision(3);
+  double time_elapsed = cmdline->time_elapsed_since_start();
+  ostr << ", elapsed = " << time_elapsed << " s (" << time_elapsed/3600.0 << " h)";
+  ostr << endl;
+  ostr.precision(prec);
   ostr << "# nev = " << iev << endl;
   ostr << "#---------------------------------------------------- " << endl;
 
