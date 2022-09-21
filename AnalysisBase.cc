@@ -93,6 +93,7 @@ void AnalysisBase::standard_output() {
   
   ofstream ostr(output_filename.c_str());
   if (!ostr.good()) throw runtime_error("Could not write to "+output_filename);
+  if (output_precision_ > 0) ostr.precision(output_precision_);
 
   ostr << header.str();
   ostr << "#---------------------------------------------------- " << endl;

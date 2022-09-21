@@ -206,6 +206,10 @@ public:
     if (output_interval * (1.0/iev) < 0.05000000001) output_interval *= 2;
     return true;
   }
+
+  void set_output_precision(int prec) {
+    output_precision_ = prec;
+  }
   
 protected:
 
@@ -274,6 +278,8 @@ protected:
     return labels;
   }
   
+  int output_precision_ = - 1;
+
 //   /// output a given collection, in alphabetical order of the labels
 //   template<class T, class U> std::ostream & output_collection(std::ostream & ostr,
 //                                                               Collection<T> & collection,
