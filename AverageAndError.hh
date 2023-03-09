@@ -107,7 +107,10 @@ private:
 
 };
 
-//std::ostream operator<<(ostream & ostr, const AverageAndError & )
+std::ostream & operator<<(std::ostream & ostr, const AverageAndError & avg) {
+  ostr << avg.average() << " +- " << avg.error() << " (n= " << avg.n() << " )";
+  return ostr;
+}
 
 /// adds functionality of maintaining info about the smallest and largest values
 class AverageAndErrorWithBounds : public AverageAndError {
