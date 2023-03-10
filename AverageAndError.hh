@@ -105,12 +105,14 @@ private:
   /// the risk of overflow 
   double powd(long long int i, int p) const {return std::pow(1.0*i,p);}
 
-};
+  // making this friend avoid "double-definition" compilation isses
+  // (see e.g. https://en.cppreference.com/w/cpp/language/friend)
+  friend std::ostream & operator<<(std::ostream & ostr, const AverageAndError & avg) {
+    ostr << avg.average() << " +- " << avg.error() << " (n= " << avg.n() << " )";
+    return ostr;
+  }
 
-std::ostream & operator<<(std::ostream & ostr, const AverageAndError & avg) {
-  ostr << avg.average() << " +- " << avg.error() << " (n= " << avg.n() << " )";
-  return ostr;
-}
+};
 
 /// adds functionality of maintaining info about the smallest and largest values
 class AverageAndErrorWithBounds : public AverageAndError {
