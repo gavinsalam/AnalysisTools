@@ -174,15 +174,18 @@ void AnalysisBase::standard_output() {
   for (const auto & label: ordered_labels(hists_err)) {
     const auto & obj = hists_err[label];
     ostr << "# diff_hist:" << label << endl;
+    ostr << "# ecol = 5" << endl;
     (norm*obj).output_diff(ostr) << endl << endl;
   }
 
   for (const auto & label: ordered_labels(cumul_hists_err)) {
     const auto & obj = cumul_hists_err[label];
     ostr << "# diff_hist:" << label << endl;
+    ostr << "# ecol = 5" << endl;
     (norm*obj).output_diff(ostr) << endl << endl;
 
     ostr << "# cumul_hist:" << label << endl;
+    ostr << "# ecol = 3" << endl;
     (norm*obj).output_cumul(ostr) << endl << endl;
   }
 
@@ -198,12 +201,13 @@ void AnalysisBase::standard_output() {
   for (const auto & label: ordered_labels(norm_hists_err)) {
     const auto & obj = norm_hists_err[label];
     ostr << "# norm_diff_hist:" << label << " [binlo binmid binhi d/dbinvar err]" << endl;
+    ostr << "# ecol = 5" << endl;
 
     double hist_weight = obj.total_weight();
     ostr << "# histogram total x-sect = " 
          <<  hist_weight * norm << " " << _units_string 
-	 << "( " << obj.n_entries() << " entries)"
-	 << endl;
+         << "( " << obj.n_entries() << " entries)"
+         << endl;
     double this_norm = hist_weight != 0.0 ? 1.0/hist_weight : 0;
     (this_norm*obj).output_diff(ostr) << endl << endl;
   }
@@ -215,8 +219,8 @@ void AnalysisBase::standard_output() {
     double hist_weight = obj.total_weight();
     ostr << "# histogram total x-sect = " 
          <<  hist_weight * norm << " " << _units_string 
-	 << "( " << obj.n_entries() << " entries)"
-	 << endl;
+         << "( " << obj.n_entries() << " entries)"
+         << endl;
     double this_norm = hist_weight != 0.0 ? 1.0/hist_weight : 0;
     
     output(obj, &ostr, this_norm/obj.binsize());
@@ -227,6 +231,7 @@ void AnalysisBase::standard_output() {
   for (const auto & label: ordered_labels(avg_hists)) {
     const auto & obj = avg_hists[label];
     ostr << "# avg_hist:" << label << " [binlo binmid binhi; average within each bin; stddev; error on avg; average of squares] " << endl;
+    ostr << "# ecol = 6" << endl;
     output_noNaN(obj, &ostr);
     ostr << endl << endl;
   }
