@@ -505,6 +505,16 @@ def rebin(array, rebin=2, nx=3, renorm=False,
   return rebinned
 
 #----------------------------------------------------------------------
+def bins(array):
+  """Returns the bin edges of the array, assuming the usual 3-column format of xlo xmid xhi,
+  which can be useful with matplotlib's axes.hist
+  """
+  result = np.empty(len(array[:,0])+1)
+  result[0:-1] = array[ :, 0]
+  result[-1]   = array[-1, 2]
+  return result
+
+#----------------------------------------------------------------------
 def extended_binary(dict_or_list_of_arrays, binary_fn, subset = None):
   """
   Return an array each of whose elements is given by the repeated
