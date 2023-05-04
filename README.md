@@ -4,6 +4,12 @@ AnalysisTools
 A set of C++ header files (and some accompanying python) to provide
 various histogramming, ntuple, etc. facilities.
 
+Usage
+-----
+
+See tests/test-all-types.cc for an example of usage 
+(run ./mkmk to create a Makefile).
+
 Authors
 -------
 
