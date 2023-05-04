@@ -221,7 +221,7 @@ def get_array_plus_comments(file, regexp=None, fortran=False, columns = None):
     started = True
   # do some basic error checking
   if (len(lines) < 1):
-    raise Error("Block in get_array had 0 useful lines")
+    raise Error(f"Block in get_array_plus_comments had 0 useful lines (called with {file=}, {regexp=})")
   # now we know the size, transfer the information to a numpy ndarray
   ncol = len(lines[0].split())                
   num_array = np.empty( (len(lines), ncol) )
