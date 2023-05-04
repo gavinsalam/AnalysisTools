@@ -592,6 +592,32 @@ def index_of_value(arr, value, tolerance=1e-7):
   else:
     return index
 
+#----------------------------------------------------
+def log_formatter_fn(value,order):
+    """A formatter for matplotlib that uses normal notation for 0.1, 1.0 and 10.0
+    and LaTeX scientific notation otherwise. To use it do
+
+    from   matplotlib.ticker import ScalarFormatter, LogFormatter, FuncFormatter
+    # [...]
+    ax.xaxis.set_major_formatter(FuncFormatter(hfile.log_formatter_fn))
+    """
+    epsilon = 1e-8
+
+    if value > 1.1e1 or value < 0.09:
+        exponent = int(np.floor(np.log(value)/np.log(10.0) + epsilon))
+        mantissa = value / 10**exponent
+        mantissa_is_one = np.abs(mantissa - 1.0) < epsilon
+        mantissa_rint = np.rint(mantissa)
+        mantissa_is_whole = np.abs(mantissa_rint - mantissa) < epsilon
+        if   mantissa_is_one:   return f"$10^{{{exponent}}}$"
+        elif mantissa_is_whole: return f"${int(mantissa_rint)} \times 10^{{{exponent}}}$"
+        else:                   return f"${mantissa} \times 10^{{{exponent}}}$"
+    else: 
+        value_rint = np.rint(value)
+        value_is_whole = np.abs(value_rint - value) < epsilon
+        if value_is_whole: return f"{int(value_rint)}"
+        else:              return f"{value}"
+
 #-------------------------------------------------------------
 class ValueAndError(object):
     '''
