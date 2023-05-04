@@ -597,7 +597,7 @@ def log_formatter_fn(value,order):
     """A formatter for matplotlib that uses normal notation for 0.1, 1.0 and 10.0
     and LaTeX scientific notation otherwise. To use it do
 
-    from   matplotlib.ticker import ScalarFormatter, LogFormatter, FuncFormatter
+    from matplotlib.ticker import FuncFormatter
     # [...]
     ax.xaxis.set_major_formatter(FuncFormatter(hfile.log_formatter_fn))
     """
