@@ -231,7 +231,7 @@ def get_array_plus_comments(file, regexp=None, fortran=False, columns = None):
     
 
 #----------------------------------------------------------------------
-def get_array(file, regexp=None, fortran=False):
+def get_array(file, regexp=None, fortran=False, regexp_transform = None):
   """
   Returns a 2d array that contains the next block of numbers in this
   file (which can be a filehandle or a filename) 
@@ -282,6 +282,12 @@ def get_array(file, regexp=None, fortran=False):
   # do some basic error checking
   if (len(lines) < 1):
     raise Error("Block in get_array had 0 useful lines")
+
+  # carry out transformation if required
+  if (regexp_transform != None):
+    for i in range(len(lines)):
+      lines[i] = re.sub(regexp_transform[0], regexp_transform[1], lines[i])
+
   # now we know the size, transfer the information to a numpy ndarray
   ncol = len(lines[0].split())                
   num_array = np.empty( (len(lines), ncol) )
