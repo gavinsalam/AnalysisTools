@@ -233,19 +233,28 @@ protected:
 
 // Binary operations with constants -----------------------------
 inline SimpleHist operator*(const SimpleHist & hist, double fact) {
-  SimpleHist result(hist.min(), hist.max(), hist.size());
-  for (unsigned i = 0; i < hist.outflow_size(); i++) result[i] = hist[i] * fact;
-  result._weight_v = hist._weight_v * fact;
-  result._weight_vsq = hist._weight_vsq * fact;
+  SimpleHist result = hist;
+  result *= fact;
   return result;
+
+  //SimpleHist result(hist.min(), hist.max(), hist.size());
+  //for (unsigned i = 0; i < hist.outflow_size(); i++) result[i] = hist[i] * fact;
+  //result._weight_v = hist._weight_v * fact;
+  //result._weight_vsq = hist._weight_vsq * fact;
+  //result._have_total = hist.have_total;
+  //return result;
 }
 
 inline SimpleHist operator/(const SimpleHist & hist, double fact) {
-  SimpleHist result(hist.min(), hist.max(), hist.size());
-  for (unsigned i = 0; i < hist.outflow_size(); i++) result[i] = hist[i] / fact;
-  result._weight_v = hist._weight_v / fact;
-  result._weight_vsq = hist._weight_vsq / fact;
+  SimpleHist result = hist;
+  result *= fact;
   return result;
+
+  //SimpleHist result(hist.min(), hist.max(), hist.size());
+  //for (unsigned i = 0; i < hist.outflow_size(); i++) result[i] = hist[i] / fact;
+  //result._weight_v = hist._weight_v / fact;
+  //result._weight_vsq = hist._weight_vsq / fact;
+  //return result;
 }
 
 inline SimpleHist operator*(double fact, const SimpleHist & hist) {
