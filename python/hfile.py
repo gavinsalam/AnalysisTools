@@ -513,7 +513,15 @@ def rebin(array, rebin=2, nx=3, renorm=False,
 #----------------------------------------------------------------------
 def bins(array):
   """Returns the bin edges of the array, assuming the usual 3-column format of xlo xmid xhi,
-  which can be useful with matplotlib's axes.hist
+  which can be useful with matplotlib's axes.hist. E.g. use as
+
+    #        bin-mid    bin edges      bin contents
+    ax.hist(array[:,1], h.bins(array), weights=array[:,3])
+
+  or
+
+    ax.stairs(array[:,3], h.bins(array))
+
   """
   result = np.empty(len(array[:,0])+1)
   result[0:-1] = array[ :, 0]
