@@ -67,7 +67,10 @@ public:
   /// returns the lower edge of bin i
   double binlo (int i) const {return i*_dv + _minv;};
   /// returns the upper edge of bin i
-  double binhi (int i) const {return (i+1)*_dv + _minv;};
+  double binhi (int i) const {
+    // special condition for bin i == _size-1 avoids rounding errors on the upper edge
+    // (in PanScales these were causing problems in validation runs for the last bin of the histogram which ended at 0)
+    return i+1 == _size ? _maxv : (i+1)*_dv + _minv; };
   /// returns the arithmetic midpoint of bin i
   double binmid(int i) const {return (i+0.5)*_dv + _minv;};
   /// returns the binsize
