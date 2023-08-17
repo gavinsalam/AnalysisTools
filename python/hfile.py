@@ -329,6 +329,10 @@ class XSection(object):
           self.units = None
           self.name = re.search(rf"# (.*) =",line).group((1))
 
+    def ve(self):
+       """return the value and error as a tuple as a ValueAndError object"""
+       return ValueAndError(self.xsc, self.err)
+
     def __str__(self):
         return "{0} +- {1} {2} (n entries = {3})".format(self.xsc,self.err,self.units,self.nentries)
 
