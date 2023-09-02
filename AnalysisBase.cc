@@ -48,15 +48,15 @@ void AnalysisBase::run() {
   post_startup();
   user_post_startup();
 
-  auto dump = cmdline->value<string>("-dump-argfile")
+  auto dump_opt = cmdline->optional_value<string>("-dump-argfile")
               .help("dump the command line arguments to a file (which can be reread with the -argfile option)")
               .argname("filename");
 
   cmdline->assert_all_options_used();
 
-  if (dump.present()) {
-    ofstream ostr(dump());
-    if (!ostr.good()) throw runtime_error("Could not write to "+dump());
+  if (dump_opt.present()) {
+    ofstream ostr(dump_opt());
+    if (!ostr.good()) throw runtime_error("Could not write to "+dump_opt());
     ostr << cmdline->dump() << endl;
   }
 
