@@ -26,18 +26,17 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                            const string & default_output_filename) :
                            cmdline(cmdline_in) {
   header << cmdline->header();
-  nev = cmdline->value<double>("-nev", 1e2);
+  nev = cmdline->value<double>("-nev", 1e2).help("number of events to generate").argname("nev");
   max_time_s = cmdline->value<double>("-max-time",-1.0).help("Maximum time (in seconds) that the code should run for");
   output_interval = cmdline->value<double>("-output-interval", output_interval).
                       help("sets the initial output interval (which is then progressively increased)");
-  if (cmdline->present("-o")) {
-    output_filename = cmdline->value<string>("-o");
+
+  if(default_output_filename.empty()) {
+    output_filename = cmdline->any_value<string>({"-o","-out"})
+                              .help("filename for output").argname("filename");
   } else {
-    if(default_output_filename.empty()) {
-      output_filename = cmdline->value<string>("-out");
-    } else {
-      output_filename = cmdline->value<string>("-out",default_output_filename);
-    }
+    output_filename = cmdline->any_value<string>({"-o","-out"}, default_output_filename)
+                              .help("filename for output").argname("filename");
   }
   
 }
@@ -49,7 +48,17 @@ void AnalysisBase::run() {
   post_startup();
   user_post_startup();
 
+  auto dump = cmdline->value<string>("-dump-argfile")
+              .help("dump the command line arguments to a file (which can be reread with the -argfile option)")
+              .argname("filename");
+
   cmdline->assert_all_options_used();
+
+  if (dump.present()) {
+    ofstream ostr(dump());
+    if (!ostr.good()) throw runtime_error("Could not write to "+dump());
+    ostr << cmdline->dump() << endl;
+  }
 
   pre_run();
   header << "# time after pre_run initialisation = " << cmdline->time_stamp() << endl;
