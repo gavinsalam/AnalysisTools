@@ -50,7 +50,7 @@ void AnalysisBase::run() {
 
   auto dump_opt = cmdline->optional_value<string>("-dump-argfile")
               .help("dump the command line arguments to a file (which can be reread with the -argfile option)")
-              .argname("filename");
+              .argname("filename").no_dump();
 
   cmdline->assert_all_options_used();
 
