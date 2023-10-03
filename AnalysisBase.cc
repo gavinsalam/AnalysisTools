@@ -61,7 +61,10 @@ void AnalysisBase::run() {
   }
 
   pre_run();
-  header << "# time after pre_run initialisation = " << cmdline->time_stamp() << endl;
+  header << "# time after pre_run initialisation = " << cmdline->time_stamp() ;
+  double time_elapsed = cmdline->time_elapsed_since_start();
+  header << ", elapsed = " << time_elapsed << " s = " << time_elapsed/60.0 << "m = " << time_elapsed/3600.0 << " h";
+  header << endl;
   
   /// should this go into a separate event_loop routine?
   for (iev = 0; iev < nev; ) {
@@ -109,7 +112,7 @@ void AnalysisBase::standard_output() {
   ostr << "# time now = " << cmdline->time_stamp();
   std::streamsize prec = ostr.precision(3);
   double time_elapsed = cmdline->time_elapsed_since_start();
-  ostr << ", elapsed = " << time_elapsed << " s (" << time_elapsed/3600.0 << " h)";
+  ostr << ", elapsed = " << time_elapsed << " s = " << time_elapsed/60.0 <<" m = " << time_elapsed/3600.0 << " h";
   ostr << endl;
   ostr.precision(prec);
   ostr << "# nev = " << iev << endl;
