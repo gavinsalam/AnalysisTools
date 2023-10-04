@@ -4,6 +4,7 @@
 #include<cmath>
 #include<vector>
 #include<limits>
+#include <cstdint>
 
 /// micro class to calculate averages and errors
 class AverageAndError {
@@ -48,13 +49,13 @@ public:
   inline double sum4() const { return _sum4; }
   
   /// return number of events
-  inline long long int n() const { return _n; }
+  inline uint64_t n() const { return _n; }
   /// alternative way to return number of events, for consistency with
   /// SimpleHist, AveragingHist, etc
-  inline long long int n_entries() const { return n(); }
+  inline uint64_t n_entries() const { return n(); }
   
   /// allow the user to reset the effective value of n
-  inline void set_n(long long int n_in) { _n = n_in;}
+  inline void set_n(uint64_t n_in) { _n = n_in;}
 
   /// calculate and return average
   inline double average() const { return (_n > 0) ? _sum/_n : 0. ; }
@@ -97,13 +98,12 @@ public:
 private:  
   double _sum, _sum2, _sum3, _sum4;
 
-  // make this long long int so that we can handle subtractions safely
-  // and at the same time go to large numbers of events
-  long long int _n;
+  // make this uint64_t so that we can go to large numbers of events
+  uint64_t _n;
 
-  /// a pow operation that converts a long long int to a double to avoid
+  /// a pow operation that converts a uint64_t to a double to avoid
   /// the risk of overflow 
-  double powd(long long int i, int p) const {return std::pow(1.0*i,p);}
+  double powd(uint64_t i, int p) const {return std::pow(1.0*i,p);}
 
   // making this friend avoid "double-definition" compilation isses
   // (see e.g. https://en.cppreference.com/w/cpp/language/friend)
