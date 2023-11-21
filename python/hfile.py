@@ -6,11 +6,8 @@ also includes some helper routines for manipulating the results
 (e.g. rebinning) and searching through the file.
 
 """
-from __future__ import division
-from __future__ import print_function
 from builtins import range
-# past is included in the futures pip install
-from past.builtins import basestring
+from builtins import str
 from builtins import object
 
 # This file is based on an earlier version written by Gavin P. Salam
@@ -80,7 +77,7 @@ def get_2darray(file,regexp=None):
     The array is deemed to terminate when there are two blank lines
     """
     # if file is a string, assume it's a filename, otherwise a filehandle
-    if (isinstance(file,basestring)) : file = open_any(file, 'r')
+    if (isinstance(file,str)) : file = open_any(file, 'r')
     if (regexp != None)              : search(file,regexp)
     
     # read in the first slice [0th index = 0]
@@ -194,7 +191,7 @@ def get_array_plus_comments(file, regexp=None, fortran=False, columns = None):
   
   # if file is a string, assume it's a filename, otherwise a filehandle
   header = ''
-  if (isinstance(file,basestring)) : file = open_any(file, 'r')
+  if (isinstance(file,str)) : file = open_any(file, 'r')
   if (regexp != None)              : header = search(file,regexp, return_line = True)
 
   # handle case where we numbers such as 0.4d3 (just replace d -> e)
@@ -259,7 +256,7 @@ def get_array(file, regexp=None, fortran=False, regexp_transform = None):
   # - and adding option of reading gnuplot-style 3d data
   
   # if file is a string, assume it's a filename, otherwise a filehandle
-  if (isinstance(file,basestring)) : file = open_any(file, 'r')
+  if (isinstance(file,str)) : file = open_any(file, 'r')
   if (regexp != None)              : search(file,regexp)
 
   # handle case where we numbers such as 0.4d3 (just replace d -> e)
@@ -341,7 +338,7 @@ def get_xsection(file,regexp,xsc_label='xsc'):
     """return a cross section value in the specified file, matching the 
        regexp and ending in xsc_label.
     """
-    if (isinstance(file,basestring)) : file = open_any(file, 'r')
+    if (isinstance(file,str)) : file = open_any(file, 'r')
     fullregexp = regexp+rf'.*{xsc_label} ='
     line = search(file, fullregexp, return_line = True)
     #
