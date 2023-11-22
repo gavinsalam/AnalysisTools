@@ -46,7 +46,7 @@ TEST_CASE( "SimpleHist", "[SimpleHist]" ) {
   SECTION("checking sum/mult (by requirement of getting zero)") {
     for (unsigned i = 0; i < hist2.outflow_size(); i++ ){
       //DYNAMIC_SECTION("sum/mult Loop round " << i) {
-      REQUIRE(hist2[i] == Approx(0.0).margin(1e-10));
+      REQUIRE(hist2[i] == Catch::Approx(0.0).margin(1e-10));
         //}
     }
   }
