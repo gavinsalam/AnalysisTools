@@ -26,6 +26,7 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                            const string & default_output_filename) :
                            cmdline(cmdline_in) {
   header << cmdline->header();
+  cmdline->start_section("Run steering");
   nev = cmdline->value<double>("-nev", 1e2).help("number of events to generate").argname("nev");
   max_time_s = cmdline->value<double>("-max-time",-1.0).help("Maximum time (in seconds) that the code should run for");
   output_interval = cmdline->value<double>("-output-interval", output_interval).
@@ -39,6 +40,7 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                               .help("filename for output").argname("filename");
   }
   
+  cmdline->end_section("Run steering");
 }
 
 //======================================================================
@@ -48,9 +50,11 @@ void AnalysisBase::run() {
   post_startup();
   user_post_startup();
 
+  cmdline->start_section("Run steering");
   auto dump_opt = cmdline->optional_value<string>("-dump-argfile")
               .help("dump the command line arguments to a file (which can be reread with the -argfile option)")
               .argname("filename").no_dump();
+  cmdline->end_section("Run steering");
 
   cmdline->assert_all_options_used();
 
