@@ -47,9 +47,7 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
 void AnalysisBase::run() {
   pre_startup();
   user_startup();
-  post_startup();
-  user_post_startup();
-
+  
   cmdline->start_section("Run steering");
   auto dump_opt = cmdline->optional_value<string>("-dump-argfile")
               .help("dump the command line arguments to a file (which can be reread with the -argfile option)")
@@ -63,6 +61,9 @@ void AnalysisBase::run() {
     if (!ostr.good()) throw runtime_error("Could not write to "+dump_opt());
     ostr << cmdline->dump() << endl;
   }
+
+  post_startup();
+  user_post_startup();
 
   pre_run();
   header << "# time after pre_run initialisation = " << cmdline->time_stamp() ;
