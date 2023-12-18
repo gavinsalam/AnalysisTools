@@ -131,7 +131,7 @@ void AnalysisBase::standard_output() {
     int n = obj.n();
     obj.set_n(iev); // for errors on xsc
     ostr << "# " << label << ": xsc = " << obj.sum()*norm 
-         << " +- " << obj.error_on_sum()*norm << " "+_units_string ;
+         << " +- " << obj.error_on_sum()*norm << " "+units_string() ;
     
     obj.set_n(n); // reset n to be what it was
     ostr << " (n entries = " << obj.n() << ")"
@@ -162,7 +162,7 @@ void AnalysisBase::standard_output() {
     ostr << " (n entries = " << obj.n();
     if (!ref_xsection) ostr << ", over all events)";
     else if(obj.internal_ref) 
-      ostr << ", xsection = " << obj.ref_xsection_value.sum()*norm << " nb)";
+      ostr << ", xsection = " << obj.ref_xsection_value.sum()*norm << " " << units_string() << ")";
     else               ostr << ", wrt "<< obj.ref_xsection << ")";
     ostr << ", range=[" << obj.min() << " -- " << obj.max() << "]";
     ostr << endl;
@@ -221,7 +221,7 @@ void AnalysisBase::standard_output() {
 
     double hist_weight = obj.total_weight();
     ostr << "# histogram total x-sect = " 
-         <<  hist_weight * norm << " " << _units_string 
+         <<  hist_weight * norm << " " << units_string() 
          << "( " << obj.n_entries() << " entries)"
          << endl;
     double this_norm = hist_weight != 0.0 ? 1.0/hist_weight : 0;
@@ -234,7 +234,7 @@ void AnalysisBase::standard_output() {
 
     double hist_weight = obj.total_weight();
     ostr << "# histogram total x-sect = " 
-         <<  hist_weight * norm << " " << _units_string 
+         <<  hist_weight * norm << " " << units_string() 
          << "( " << obj.n_entries() << " entries)"
          << endl;
     double this_norm = hist_weight != 0.0 ? 1.0/hist_weight : 0;

@@ -195,6 +195,8 @@ public:
   /// returns the factor that multiplies the sum of weights in order
   /// to get a cross section (or analogue).
   virtual double weight_factor() const {return 1.0/iev;}
+  /// returns the dimensions of the cross section (or analogue)
+  virtual std::string units_string() const {return "arb.units";}
 
   /// returns true if it's time for periodic output (established
   /// based on the event number); this not check if periodic output
@@ -259,9 +261,6 @@ protected:
 
   double event_weight_ = 1.0;
   double total_weight = 0.0;
-
-  /// this will be used to output units
-  std::string _units_string;
 
   unsigned long long int iev = 0, nev = 0, output_interval = 10, iev_last_output=0;
   double max_time_s = -1.0;
