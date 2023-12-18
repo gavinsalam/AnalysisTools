@@ -172,7 +172,7 @@ class ArrayPlusComments(object):
 
 #----------------------------------------------------------------------    
 def get_array_plus_comments(file, regexp=None, fortran=False, columns = None):
-  """Returns an ArrayPlusComments object that contants a header, 2d array and footer. 
+  """Returns an ArrayPlusComments object that contains a header, 2d array and footer. 
   The array is in the same format as 2d array.
 
   Additionally it is possible to specify column names (columns start
