@@ -73,7 +73,11 @@ use File::Glob ':glob';
 use File::Glob ':globally';
 #----------------------------------------------------------------------
 # Version history
-$version = "2.2.1 (2020-02-09)";
+$version = "2.3.0 (2024-01-30)";
+#
+# 2.3.0 (2024-01-30)
+# - resolved long-standing issue that quantities with +- and ± did not 
+#   have any error treatment applied in the combination
 #
 # 2.2.1 (2020-02-25)
 # - fixed issue with sqrt of negative number in error calc
@@ -203,7 +207,7 @@ for($ifile = 0; $ifile < $nfile; $ifile++) {
   }
 }
 
-print $OUT $commentchar." combined nev = ",1.0*$nev,", from ",$#files+1," files (version $version)\n";
+print $OUT $commentchar." combined nev = ",1.0*$nev,", from ",$#files+1," files (combine-runs.pl version $version)\n";
 print STDERR "Total number of events is $nev",sprintf("(%.3e)",$nev*1.0),", from ",$#files+1," files";
 if ($outfile) {print STDERR ", being written to $outfile";}
 print STDERR "\n";
@@ -275,12 +279,25 @@ while () {
     $totwgt += $wgt[$ifile];
 
     # get the information from this row for this file
+    # (setting up variables needed to handle temporary error columns)
+    $use_tmp_errcol = 0;
+    @errcol_save = @errcol;
     for ($icol = 0; $icol <= $#pieces; $icol++) {
       if ($notnumeric[$icol]) {next;}
       $numeric = is_numeric($pieces[$icol]);
+
       if (!$numeric) {
         $notnumeric[$icol] = 1;
         $out[$icol] = $pieces[$icol];
+
+        # now check for +- or ±, and if so set a tmp error column
+        if ($pieces[$icol] eq "+-" || $pieces[$icol] eq "±") {
+          if (!use_tmp_errcol) {
+            $use_tmp_errcol = 1;
+            @errcol = ();
+          }
+          $errcol[$icol+1] = 1;
+        }
       } else {
         $thiswgt = ($icol+1 >= $sumfromcol) ? 1 : $wgt[$ifile];
         $piece = $thiswgt * $pieces[$icol];
@@ -302,6 +319,10 @@ while () {
           # $sum_wgt2_yi2[$icol] += $thiswgt**2 * ($pieces[$icol])**2;
         }
       }
+    }
+    # reset the error column information if we were using a tmp error column to handle things like +- or ±
+    if ($use_tmp_errcol) {
+      @errcol = @errcol_save;
     }
   }
   if (!$good) {last;}
