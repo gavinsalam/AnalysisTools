@@ -205,14 +205,22 @@ public:
   bool periodic_output_is_due() {
     if (iev - iev_last_output < output_interval) return false;
     iev_last_output = iev;
-    if (output_interval * (1.0/iev) < 0.05000000001) output_interval *= 2;
-    return true;
+    if (output_interval * (1.0/iev) < 0.05000000001) {
+      if (time_since_last_write() < _max_time_between_writes) output_interval *= 2;
+    }
+    return (time_since_last_write() >= _min_time_between_writes);
+    //return true;
   }
 
   void set_output_precision(int prec) {
     output_precision_ = prec;
   }
   
+  /// return the time (in whole s) since the last write 
+  double time_since_last_write() const {
+    return cmdline->time_elapsed_since_start() - _time_elapsed_at_last_write;
+  }
+
 protected:
 
   CmdLine * cmdline;
@@ -264,6 +272,12 @@ protected:
 
   unsigned long long int iev = 0, nev = 0, output_interval = 10, iev_last_output=0;
   double max_time_s = -1.0;
+  /// the elapsed time at which the last write occurred (in whole s)
+  double _time_elapsed_at_last_write = 0.0;
+  /// the minimum time between writes (in s), only whole seconds registered
+  double _min_time_between_writes = 1.0;
+  /// the approx maximum time between writes (in s; write frequency stops doubling if interval exceeds this)
+  double _max_time_between_writes = 900;
 
   template<class T> vector<string> ordered_labels(Collection<T> & collection) {
     std::vector<string> labels;

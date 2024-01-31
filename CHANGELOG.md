@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] updates on 2023-01-31
+
+### Changed
+
+- automatic output interval now limited in lower and upper time
+  between outputs through AnalysisBase::_min_time_between_writes and _max_time_between_writes
+
+- combine-runs.pl now handles numbers that follow " +- " and " ± "  as errors
+  (this is labeled as release 2.3.0 of combine-runs.pl)
+
+- new virtual AnalysisBase::units_string() replaces earlier _units_string and 
+
+- updated Catch to 3.1.0
+
+- added -dump-argfile option
+
+## [Unreleased]  2023-03-14
+### Added
+- many utility scripts (such as combine-runs.pl, hfile.py, etc.)
+  are now included in the repository
+
 ## [Unreleased]
 ### Added
     - added hists_2d_compact, which output only bin centres

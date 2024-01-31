@@ -107,6 +107,7 @@ void AnalysisBase::run() {
 //======================================================================
 void AnalysisBase::standard_output() {
   cout << "Outputting result after generation of " << iev << " events" << endl;
+  _time_elapsed_at_last_write = cmdline->time_elapsed_since_start();
   
   ofstream ostr(output_filename.c_str());
   if (!ostr.good()) throw runtime_error("Could not write to "+output_filename);
