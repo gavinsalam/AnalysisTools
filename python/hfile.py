@@ -305,6 +305,7 @@ class XSection(object):
     obj.nentries: the number of entries of which it is built
     obj.name: the name
     obj.line: the full line
+    obj.ve(): returns a ValueAndError object
     """
     def __init__(self, line, xsc_label='xsc'):
         self.line = line
