@@ -56,6 +56,22 @@ public:
     this->add_entry(val, varA, varB, weight);
   }
 
+  T & declare_once(const Binning & binning) {
+    if (_first_call) {
+      T::declare(binning);
+      _first_call = false;
+    }
+    return *this;
+  }
+
+  T & declare_once(double minv, double maxv, double bin_size) {
+    if (_first_call) {
+      T::declare(minv,maxv,bin_size);
+      _first_call = false;
+    }
+    return *this;
+  }
+
   TemplateDefaultHist & declare(double minv, double maxv, double bin_size) {
     T::declare(minv,maxv,bin_size);
     return *this;
