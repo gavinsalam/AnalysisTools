@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - for TemplateDefaultHist, added a declare_once option that returns the underlying
   histogram, e.g. `hists_err["name"].declare_once(binning).add_entry(value);`
 - AveragingHist output now includes a "cols: ..." line
-
+- added -git-info yes/no (or -no-git-info) option to determine whether
+  runtime git info is included in the output
+  
 ## [1.1.0] updates on 2023-01-31
 
 ### Changed

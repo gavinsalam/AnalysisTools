@@ -27,10 +27,6 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                            cmdline(cmdline_in) {
   cmdline->start_section("Run steering");
   
-  bool user_git_info = cmdline->value_bool("-git-info", true).help("include git info in the header() output");
-  cmdline->set_git_info_enabled(user_git_info);
-
-  header << cmdline->header();
   nev = cmdline->value<double>("-nev", 1e2).help("number of events to generate").argname("nev");
   max_time_s = cmdline->value<double>("-max-time",-1.0).help("Maximum time (in seconds) that the code should run for");
   output_interval = cmdline->value<double>("-output-interval", output_interval).
@@ -44,7 +40,15 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                               .help("filename for output").argname("filename");
   }
   
+  bool user_git_info = cmdline->value_bool("-git-info", true)
+         .help("include runtime git status in the header() output. "
+               "Use '-no-git-info' or '-git-info no' to disable, e.g. on systems where git repo access is slow").argname("yes/no").no_dump();
+  cmdline->set_git_info_enabled(user_git_info);
+
   cmdline->end_section("Run steering");
+
+  header << cmdline->header();
+
 }
 
 //======================================================================
