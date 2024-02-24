@@ -106,6 +106,7 @@ private:
 inline void output_noNaN(const AveragingHist hist, 
                          std::ostream * ostr = (&std::cout), double = 1.0) {
   
+  *ostr << "# cols: vlo vmid vhi avg stddev err_on_avg avg_sq" << std::endl;
   for (unsigned i = 0; i < hist.size(); i++) {
     *ostr << hist.binlo(i)  << " " 
           << hist.binmid(i) << " "
@@ -124,6 +125,7 @@ inline void output_noNaN(const AveragingHist hist,
 inline void output_avg_and_sqr_noNaN(const AveragingHist hist, 
                    std::ostream * ostr = (&std::cout)) {
   
+  *ostr << "# cols: vlo vmid vhi avg avg_sq" << std::endl;
   for (unsigned i = 0; i < hist.size(); i++) {
     *ostr << hist.binlo(i)  << " " 
           << hist.binmid(i) << " "

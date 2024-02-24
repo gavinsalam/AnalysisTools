@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0 devel]
 - for TemplateDefaultHist, added a declare_once option that returns the underlying
   histogram, e.g. `hists_err["name"].declare_once(binning).add_entry(value);`
+- AveragingHist output now includes a "cols: ..." line
 
 ## [1.1.0] updates on 2023-01-31
 
