@@ -484,7 +484,19 @@ class HFile(object):
             for line in f: self.warnings += line
 
     def by_name(self,name):
+        """Return the histogram with the exact given name"""
         return self.map[name]
+    
+    def by_re(self,regexp):
+        """Return the histogram with a name that matches the given regexp"""
+        hists = []
+        for hist in self.histograms:
+            if re.search(regexp,hist.name): hists.append(hist)
+        if len(hists) == 1: return hists[0]
+        if len(hists) == 0: raise ValueError(f"No histogram with name matching '{regexp}'")
+        if len(hists) > 1:  
+           raise ValueError(f"Multiple histograms with name matching '{regexp}':"
+                            +", ".join([hist.name for hist in hists]))
 
     def __add__(self, other):
         new = copy.deepcopy(self)
