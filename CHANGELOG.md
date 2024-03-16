@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.2.0 devel]
+- added view-hfile.py
+- hfile.py has new features
+  * HFile class for containing a whole file
+  * Histogram class that contains a histogram with some attempt
+    at automatically handling the various kinds of histograms
+    produced by the Analysis Tools and for plotting
+    (matplotlib should be loaded only if needed)
+  * line_and_band(...) for plotting a line and a band
+
 - for TemplateDefaultHist, added a declare_once option that returns the underlying
   histogram, e.g. `hists_err["name"].declare_once(binning).add_entry(value);`
 - AveragingHist output now includes a "cols: ..." line

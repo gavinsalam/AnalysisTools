@@ -9,6 +9,7 @@ also includes some helper routines for manipulating the results
 from builtins import range
 from builtins import str
 from builtins import object
+import copy
 
 # This file is based on an earlier version written by Gavin P. Salam
 # (2011)
@@ -292,6 +293,220 @@ def get_array(file, regexp=None, fortran=False, regexp_transform = None):
     num_array[i,:] = lines[i].split()
   return num_array
 
+class Histogram(ArrayPlusComments):
+    def __init__(self, apc, plot_args):
+        super().__init__(apc.header, apc.array, apc.footer)
+        self.name = ''
+        self.columns = []
+        self.plot_args  = plot_args
+
+        header_lines = self.header.split('\n')
+        # 
+        self.name = header_lines[0].replace("# ","")
+        self.name = re.sub(r' \[.*','',self.name)
+        #print(header_lines)
+        try:
+            columns = [line for line in header_lines[1:] if line.startswith("# cols: ")][0].replace("# cols: ","")
+        except IndexError:            
+            print("No columns found in header")
+            print(self.header)
+            sys.exit(1)
+        columns = columns.replace("# cols: ", "")
+        columns = re.sub(r'\(.*','',columns)
+        self.columns = columns.split()
+
+    def value_array(self):
+        return self.array_by_tag('hist', alt_tag = 'avg')
+
+    def value_column_name(self):
+        for column in self.columns:
+            if 'hist' in column or 'avg' in column: return column
+        raise ValueError("No column with tag 'hist' or 'avg'")
+
+    def error_column_name(self):
+        for column in self.columns:
+            if 'err' in column: return column
+        raise ValueError("No column with tag 'err'")
+    
+    def x_array(self):
+        try:
+            return self.array_by_tag('vmid')
+        except ValueError:
+            return self.array_by_tag('v')
+
+    def has_error(self):
+        errcols = [column for column in self.columns if 'err' in column]
+        return len(errcols) > 0
+
+    def error_array(self):
+        return self.array_by_tag('err')
+
+    def array_by_tag(self,tag, alt_tag = None):
+        """Return the array for the first column with the given tag"""
+        for i,column in enumerate(self.columns):
+            if tag in column: return self.array[:,i]
+            if alt_tag and alt_tag in column: return self.array[:,i]
+        raise ValueError("No column with tag " + tag)
+
+    def value_or_ValueAndError(self):
+        """Return the value if there is no error column, otherwise return a ValueAndError object"""
+        if self.has_error():
+            return ValueAndError(self.value_array(),self.error_array())
+        else:
+            return self.value_array()
+
+    def __add__(self, other):
+        """sum another histogram to this one; NB does not yet handle total_weight, etc."""
+        orig = copy.deepcopy(self)
+
+        if orig.name != other.name:
+            raise ValueError(f"Can't sum histograms with different names: {orig.name} and {other.name}")
+        if orig.columns != other.columns:
+            raise ValueError(f"Can't sum histograms with different columns: {orig.columns} and {other.columns}")
+        if (orig.x_array() != other.x_array()).any():
+            raise ValueError(f"Can't sum histograms with different x arrays for {orig.name}: {orig.x_array()} and {other.x_array()}")
+
+        # now we will sum other into orig
+        orig_contents  = 1.0 * self .value_or_ValueAndError() 
+        other_contents = 1.0 * other.value_or_ValueAndError() 
+        orig_contents  += other_contents
+        if orig.has_error():
+            orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents.value
+            orig.array[:,orig.columns.index(orig.error_column_name())] = orig_contents.error
+        else:
+            orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents
+
+        # copy over the labels
+        # if(other.plot_args['label'] == other.filename):
+        #     other.plot_args['label'] = self.filename
+        #     self.plot_args['label']   = self.filename
+        #print(self.name)
+        #print(h.reformat(self.value_array(), other.value_array(), orig.value_array()))        
+        return orig
+
+    def plot_to_axes(self, ax, norm = None, **extra):
+        """Plot the histogram to the given axes, possibly normalised by the histogram specified by the norm argument"""
+        # multiply by 1.0 to make sure that we take a copy before
+        # subsequent normalisation
+        contents = 1.0 * self.value_or_ValueAndError() 
+        # remove the duplicate labels (assume user has end say)
+        extra_no_double = copy.copy(extra)
+        for key in self.plot_args.keys():
+            if key in extra_no_double: del extra_no_double[key]
+            
+        if norm: contents /= norm.value_or_ValueAndError()
+        if self.has_error():
+            line_and_band(ax,self.x_array(), contents, **extra_no_double, **self.plot_args)
+        else:
+            ax.plot(self.x_array(), contents, **extra_no_double, **self.plot_args)
+
+    def set_axes_data(self, ax):
+        ax.set_title(self.name)
+        ax.set_xlabel(re.sub(r'.*:','',self.name))
+        ax.set_ylabel(self.value_column_name())
+
+    def plot(self, pdf, others = []):
+        import matplotlib.pyplot as plt
+
+        print("Plotting histogram", self.name)
+        fig,ax = plt.subplots()
+
+        self.set_axes_data(ax)
+        self.plot_to_axes(ax, **styles[0])
+
+        pdf.savefig(fig,bbox_inches='tight')
+        plt.close()
+
+        # ax.set_xlim(0,2.5)
+        # ax.xaxis.set_minor_locator(MultipleLocator(0.1))
+        # ax.yaxis.set_minor_locator(MultipleLocator(0.02))
+        # ax.tick_params(top=True,right=True,direction='in',which='both')
+        # ax.set_xscale('log')
+        # ax.xaxis.set_major_formatter(FuncFormatter(h.log_formatter_fn))
+        # ax.grid(True,ls=":")
+        # ax.set_title("title")
+        # ax.text(x,y,'hello',transform=ax.transAxes)
+        # ax.plot(res.x, res.y, label='label', **styles[0])
+        #ax.legend(loc='upper left')
+        #pdf.savefig(fig,bbox_inches=Bbox.from_extents(0.0,0.0,7.5,4.8))
+
+
+class HFile(object):
+    def __init__(self,filename):
+        has_labels = len(filename.split(':')) > 1
+        self.filename = filename.split(':')[0]
+        self.plot_args = {}
+        if(has_labels):
+            for f in filename.split(':')[1].split(" "):
+                key, value = f.split("=")
+                self.plot_args[key] = value
+        else:
+            self.plot_args['label'] = self.filename
+        self.header = ''
+        self.warnings = ''
+        self.histograms = []
+
+        f = open_any(self.filename,'r')
+
+        # first get the header
+        while True:
+            pos = f.tell()
+            line = f.readline()
+            if line == '': break
+            if re.search(r'hist.*:',line): 
+                f.seek(pos)
+                break
+            self.header += line
+
+        # then get the histograms, bailing out if we see a WARNING SUMMARY
+        while True:
+            pos = f.tell()
+            line = f.readline()
+            if line == '': break
+            #print(line.strip())
+            if (line.strip() == ''): continue
+            if 'WARNING SUMMARY' in line:
+                self.warnings += line
+                break
+            if 'hist' in line:
+                f.seek(pos)
+                histogram = Histogram(get_array_plus_comments(f), self.plot_args)
+
+                #print(histogram.name, histogram.columns)
+                self.histograms.append(histogram)
+
+        self.map = {}
+        for hist in self.histograms:
+            self.map[hist.name] = hist
+
+        # finally the warnings
+        if self.warnings:
+            for line in f: self.warnings += line
+
+    def by_name(self,name):
+        return self.map[name]
+
+    def __add__(self, other):
+        new = copy.deepcopy(self)
+        for ih, h in enumerate(new.histograms):
+            new.histograms[ih] += other.histograms[ih]
+        new.filename += ' + ' + other.filename
+        if(other.plot_args['label'] == other.filename):
+            new.plot_args['label']   = new.filename
+            for h in new.histograms:
+                h.plot_args  = new.plot_args
+        return new
+
+def line_and_band(ax,x,val_and_err,**extra):
+    extra_no_label = copy.copy(extra)
+    if ('label' in extra_no_label): del extra_no_label['label']
+    ax.fill_between(x,
+                    val_and_err.value-val_and_err.error,
+                    val_and_err.value+val_and_err.error,
+                    alpha=0.2,
+                    **extra_no_label
+                    )
+    ax.plot(x,val_and_err.value, **extra)
 
 #----------------------------------------------------------------------
 class XSection(object):
