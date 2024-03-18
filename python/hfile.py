@@ -375,30 +375,38 @@ class Histogram(ArrayPlusComments):
             orig.array[:,orig.columns.index(orig.error_column_name())] = orig_contents.error
         else:
             orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents
-
-        # copy over the labels
-        # if(other.plot_args['label'] == other.filename):
-        #     other.plot_args['label'] = self.filename
-        #     self.plot_args['label']   = self.filename
-        #print(self.name)
-        #print(h.reformat(self.value_array(), other.value_array(), orig.value_array()))        
         return orig
+
+    def __mul__(self, scalar):
+        """Multiply this histogram by a scalar, returning a new histogram with the result."""
+        orig = copy.deepcopy(self)
+
+        # now we multiply scalar into orig
+        orig_contents  = scalar * self .value_or_ValueAndError() 
+        if orig.has_error():
+            orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents.value
+            orig.array[:,orig.columns.index(orig.error_column_name())] = orig_contents.error
+        else:
+            orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents
+        return orig
+
+    def __rmul__(self, scalar):
+        return self.__mul__(scalar)
 
     def plot_to_axes(self, ax, norm = None, **extra):
         """Plot the histogram to the given axes, possibly normalised by the histogram specified by the norm argument"""
         # multiply by 1.0 to make sure that we take a copy before
         # subsequent normalisation
         contents = 1.0 * self.value_or_ValueAndError() 
-        # remove the duplicate labels (assume user has end say)
-        extra_no_double = copy.copy(extra)
-        for key in self.plot_args.keys():
-            if key in extra_no_double: del extra_no_double[key]
-            
-        if norm: contents /= norm.value_or_ValueAndError()
+        # get arguments, with priority given to extra
+        combined_args = self.plot_args.copy()
+        combined_args.update(extra)
+
+        if norm is not None: contents /= norm.value_or_ValueAndError()
         if self.has_error():
-            line_and_band(ax,self.x_array(), contents, **extra_no_double, **self.plot_args)
+            line_and_band(ax,self.x_array(), contents, **combined_args)
         else:
-            ax.plot(self.x_array(), contents, **extra_no_double, **self.plot_args)
+            ax.plot(self.x_array(), contents, **combined_args)
 
     def set_axes_data(self, ax):
         ax.set_title(self.name)
@@ -644,15 +652,15 @@ def cumul(array, nx=3, renorm=False, reverse = False):
   Returns the accumulated version of the array. Currently assumes uniform
   spacing.
 
-  \param nx      indicates how many columns of x-axis info there are. If
+  @param nx      indicates how many columns of x-axis info there are. If
                  nx = 1, the spacing must be uniform and the x axis is adjusted
                  so as to be shifted by half a bin in the right direction
 
-  \param renorm  if True, it assumes that we are dealing with a 
+  @param renorm  if True, it assumes that we are dealing with a 
                  differential distribution (so sum of bins must be divided 
                  by rebin); NB: this is buggy if bin spacings not uniform
 
-  \param reverse accumulates negatively from the high end downwards if
+  @param reverse accumulates negatively from the high end downwards if
                  true. The high bin will always be at xmax+dx/2,
                  regardless of the value of reverse, which means that
                  if reverse is True, then the high-end y bins will be
@@ -693,13 +701,13 @@ def rebin(array, rebin=2, nx=3, renorm=False,
                  min=-1e300, max=1e300):
   """ Returns a rebinned version of an array. 
   
-  \param rebin   indicates how many bins to combine
-  \param nx      indicates how many columns of x-axis info there are
-  \param renorm  if True, it assumes that we are dealing with a 
+  @param rebin   indicates how many bins to combine
+  @param nx      indicates how many columns of x-axis info there are
+  @param renorm  if True, it assumes that we are dealing with a 
                  differential distribution (so sum of bins must be divided 
                  by rebin)
-  \param min     starts only from bins >= min
-  \param max     goes only up to bins <= max
+  @param min     starts only from bins >= min
+  @param max     goes only up to bins <= max
   """
   ilo = 0
   ihi = len(array[:,0])-1
