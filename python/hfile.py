@@ -307,10 +307,11 @@ class Histogram(ArrayPlusComments):
         #print(header_lines)
         try:
             columns = [line for line in header_lines[1:] if line.startswith("# cols: ")][0].replace("# cols: ","")
-        except IndexError:            
-            print("No columns found in header")
-            print(self.header)
-            sys.exit(1)
+        except IndexError:
+            raise RuntimeError("No columns found in header:\n" + self.header)
+            # raise ("No columns found in header:\n" + self.header)
+            # print(self.header)
+            # sys.exit(1)
         columns = columns.replace("# cols: ", "")
         columns = re.sub(r'\(.*','',columns)
         self.columns = columns.split()
@@ -382,7 +383,7 @@ class Histogram(ArrayPlusComments):
         orig = copy.deepcopy(self)
 
         # now we multiply scalar into orig
-        orig_contents  = scalar * self .value_or_ValueAndError() 
+        orig_contents  = scalar * self.value_or_ValueAndError() 
         if orig.has_error():
             orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents.value
             orig.array[:,orig.columns.index(orig.error_column_name())] = orig_contents.error
@@ -392,6 +393,19 @@ class Histogram(ArrayPlusComments):
 
     def __rmul__(self, scalar):
         return self.__mul__(scalar)
+    
+    def __rtruediv__(self, scalar):
+        orig = copy.deepcopy(self)
+
+        # now we operate on the value or ValueAndError
+        orig_contents  = scalar / self.value_or_ValueAndError() 
+        if orig.has_error():
+            orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents.value
+            orig.array[:,orig.columns.index(orig.error_column_name())] = orig_contents.error
+        else:
+            orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents
+        return orig
+       
 
     def plot_to_axes(self, ax, norm = None, **extra):
         """Plot the histogram to the given axes, possibly normalised by the histogram specified by the norm argument"""
