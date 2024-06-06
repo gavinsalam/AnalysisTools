@@ -48,7 +48,10 @@ def main():
 
     parser.add_argument("--yrange", metavar="min,max", type=str, default = "", 
                         help="y range for all plots")
-    
+    parser.add_argument("--xrange", metavar="min,max", type=str, default = "", 
+                        help="x range for all plots")
+    parser.add_argument("--xlabel", type=str, help="x-axis label")
+    parser.add_argument("--ylabel", type=str, help="y-axis label")
     parser.add_argument("--pdfname", "-o","--out","-out", metavar='pdfname', type=str, default = "", 
                         help='Name of the output PDF file (if not specified, it is derived from first filename)')
 
@@ -95,10 +98,12 @@ def main():
             ax.xaxis.set_minor_locator(AutoMinorLocator())
             ax.yaxis.set_minor_locator(AutoMinorLocator())
             # set the y range if requested
-            if args.yrange:
-                yrange = [float(y) for y in args.yrange.split(',')]
-                ax.set_ylim(yrange)
+            if args.xrange: ax.set_xlim([float(y) for y in args.xrange.split(',')])
+            if args.yrange: ax.set_ylim([float(y) for y in args.yrange.split(',')])
             histogram.set_axes_data(ax)
+            if args.xlabel: ax.set_xlabel(args.xlabel)
+            if args.ylabel: ax.set_ylabel(args.xlabel)
+
             if args.logy and re.search(args.logy, histogram.name): ax.set_yscale('log')
 
             for ihfiles in range(nfiles):
