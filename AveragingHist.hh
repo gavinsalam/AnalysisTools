@@ -9,6 +9,10 @@ public:
 
   AveragingHist() {}
 
+  AveragingHist(const Binning & binning) {
+    declare(binning);
+  }
+
   AveragingHist(double minv, double maxv, int n) {
     declare(minv, maxv, n);
   }
@@ -28,6 +32,13 @@ public:
 
   void declare(double minv, double maxv, int n) {
     declare(minv, maxv, unsigned(n));
+  }  
+
+  void declare(const Binning & binning) {
+    _sum     .declare(binning);
+    _sum2    .declare(binning);
+    _weights .declare(binning);
+    _nentries.declare(binning);
   }
 
   // declare (or redeclare) the histogram
