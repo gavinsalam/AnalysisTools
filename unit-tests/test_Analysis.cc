@@ -14,7 +14,7 @@ public:
     avg_hists["<y>_v_x"].declare(binning);    
 
   }
-  
+
   bool generate_event() override {
     _x = 0.5; 
     _y = 3.0; 
@@ -22,8 +22,9 @@ public:
   }
 
   void user_analyse_event() override {
-    hists["x"].declare_once(0.0, 2.0, 1.0).add_entry(_x);    
-    avg_hists["<y>_v_x"].declare_once(0.0, 2.0, 1.0).add_entry(_x, _y);    
+    hists["x"].declare_once(0.0, 2.0, 1.0).add_entry(_x);   
+    // this should not change the binning, because it was already declared above 
+    avg_hists["<y>_v_x"].declare_once(0.0, 3.0, 1.0).add_entry(_x, _y);    
     avg_hists["<y>_v_x"].declare_once(binning).add_entry(_x, _y);    
   }
 
@@ -34,7 +35,8 @@ private:
 
 TEST_CASE( "Analysis", "[Analysis]" ) {
   //bool verbose = false;
-  CmdLine cmdline({"test_analysis", "-nev", "1", "-o", "/dev/null"});
+  //CmdLine cmdline({"test_analysis", "-nev", "3", "-o", "/tmp/a"});
+  CmdLine cmdline({"test_analysis", "-nev", "3", "-o", "/dev/null"});
   Analysis analysis(&cmdline);
   analysis.run();
 

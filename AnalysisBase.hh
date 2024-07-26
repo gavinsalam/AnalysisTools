@@ -74,11 +74,13 @@ public:
 
   TemplateDefaultHist & declare(double minv, double maxv, double bin_size) {
     T::declare(minv,maxv,bin_size);
+    _first_call = false;
     return *this;
   }
 
   TemplateDefaultHist & declare(const Binning & binning) {
     T::declare(binning);
+    _first_call = false;
     return *this;
   }
 
