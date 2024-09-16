@@ -182,7 +182,10 @@ public:
   /// options have been processed
   virtual void user_post_startup() {}
 
-  /// this generates the event
+  /// this generates the event and should return true if it 
+  /// has done so successfully; if it returns false, the
+  /// AnalysisBase main event loop will not increase the total
+  /// number of events generated.
   virtual bool generate_event() = 0;
 
   // this returns the weight of the current event
