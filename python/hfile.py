@@ -858,8 +858,9 @@ def index_of_value(arr, value, tolerance=1e-7):
     return index
 
 #----------------------------------------------------
-def log_formatter_fn(value,order):
-    """A formatter for matplotlib that uses normal notation for 0.1, 1.0 and 10.0
+def log_formatter_fn(value, order):
+    """A formatter for matplotlib that uses normal notation for numbers 
+    between lower and upper (by default 0.1, 1.0 and 10.0)
     and LaTeX scientific notation otherwise. To use it do
 
     from matplotlib.ticker import FuncFormatter
@@ -867,8 +868,10 @@ def log_formatter_fn(value,order):
     ax.xaxis.set_major_formatter(FuncFormatter(hfile.log_formatter_fn))
     """
     epsilon = 1e-8
+    lower=0.09
+    upper=11.0
 
-    if value > 1.1e1 or value < 0.09:
+    if value > upper or value < lower:
         exponent = int(np.floor(np.log(value)/np.log(10.0) + epsilon))
         mantissa = value / 10**exponent
         mantissa_is_one = np.abs(mantissa - 1.0) < epsilon
