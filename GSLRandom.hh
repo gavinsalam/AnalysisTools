@@ -43,7 +43,9 @@ public:
     set(s);
   }
   /// create a GSLRandom generator with the specified generator type
-  inline GSLRandom(const gsl_rng_type * T) {reset(gsl_rng_alloc(T));}
+  inline GSLRandom(const gsl_rng_type * T) {
+    reset(gsl_rng_alloc(T));
+  }
 
   /// create a GSLRandom generator with the specified generator type
   /// and seed
@@ -66,13 +68,23 @@ public:
     gsl_rng_memcpy(gsl_generator(), orig.gsl_generator());
   }
   
-  inline void reset(gsl_rng * r) {_r.reset(r, gsl_rng_free);}
+  /// reset the generator to a new gsl_rng object
+  inline void reset(gsl_rng * r) {
+    _r.reset(r, gsl_rng_free);
+    _update_granularity();
+  }
 
   /// set the seed
   inline void set(unsigned long int s) {
     _seed = s;
     gsl_rng_set(_r.get(), s);
   }
+
+  /// return the maximum value that can be generated
+  unsigned long int max() const {return gsl_rng_max(_r.get());}
+
+  /// return half the granularity (as relevant in the double range 0,1)
+  double half_granularity() const {return _half_granularity;}
 
   /// returns in range [0,1) (includes 0, excludes 1)
   inline double uniform() const {return gsl_rng_uniform(_r.get());}
@@ -194,6 +206,11 @@ public:
 protected:
   SHARED_PTR<gsl_rng> _r;
   unsigned long int _seed = gsl_rng_default_seed;
+  double _half_granularity;
+
+  void _update_granularity() {
+    _half_granularity = 0.5 / double(max());
+  }
 };
 
 #endif // __GSLRANDOM_HH__
