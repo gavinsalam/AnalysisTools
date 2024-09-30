@@ -861,7 +861,10 @@ def index_of_value(arr, value, tolerance=1e-7):
 def log_formatter_fn(value, order):
     """A formatter for matplotlib that uses normal notation for numbers 
     between lower and upper (by default 0.1, 1.0 and 10.0)
-    and LaTeX scientific notation otherwise. To use it do
+    and LaTeX scientific notation otherwise. The "order" is a dummy argument
+    required by matplotlib but not used here. 
+    
+    To use it do
 
     from matplotlib.ticker import FuncFormatter
     # [...]
