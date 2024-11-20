@@ -23,7 +23,10 @@ styles = [
     {'color':'#00c000'},
     {'color':'#404040'},
     {'color':'#e0a040'},
+    {'color':'#00a0a0'},
     ]
+nstyles = len(styles)    
+
 colors = cycler('color', [style['color'] for style in styles])
 # see options for things to set with 
 #     python -c "import matplotlib as mpl; print(mpl.rcParams)"
@@ -113,9 +116,9 @@ def main():
                 # if hh.name != histogram.name:
                 #     raise ValueError(f"histogram {histogram.name} not found in file {filenames[ihfiles]}")
                 if (args.norm): 
-                    hh.plot_to_axes(ax, **styles[ihfiles], norm=hfiles[0].histograms[ih]) 
+                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles], norm=hfiles[0].histograms[ih]) 
                 else:
-                    hh.plot_to_axes(ax, **styles[ihfiles]) 
+                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles]) 
 
             ax.legend(loc='best')
             pdf.savefig(fig,bbox_inches='tight')
