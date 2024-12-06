@@ -23,14 +23,18 @@ public:
                             }
 
   /// add vector with entries
-  inline void add(std::vector<double> v)  { 
+  inline void add(const std::vector<double> & v)  { 
       for(unsigned i=0;i<v.size();i++) add(v[i]);
   }
   
   /// alternative way to add one or more entries, for consistency with 
   /// SimpleHist, AveragingHist, etc
   inline void add_entry(double x) { add(x); }
-  inline void add_entry(std::vector<double> v) { add(v); }
+  inline void add_entry(const std::vector<double> & v) { add(v); }
+
+  /// add n zeroes 
+  template<class IntType>
+  inline void add_n_zeroes(IntType n) {_n += n;}
 
   /// add one event with a different notation
   inline void operator+= (double x) { add(x); }
