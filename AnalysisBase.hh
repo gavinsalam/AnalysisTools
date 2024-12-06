@@ -253,6 +253,24 @@ protected:
   virtual void pre_run() {}
   virtual void standard_output();
   
+  /// In some generation schemes, one may make many attempts at phase
+  /// space generation for a single successful event; to take this into
+  /// account in error estimates, we reset the n in xsection and average
+  /// and error objects to the number returned by this function. 
+  ///
+  /// By default the function just returns iev, as is good, e.g. if 
+  /// the normalising cross section is known exactly. 
+  /// 
+  /// However derived classes may override this function. For example if
+  /// the generator has a fixed overhead for a Born cross section and
+  /// has made 1000 trials in order to successfully generate 100 events
+  /// then by returning 1000 rather than 100, this function enables
+  /// output of cross sections to correctly generate the relevant errors.
+  ///
+  /// Note this is only relevant for the error; the actual normalisation
+  /// should be dealt with by overriding the weight_factor() function 
+  /// above.
+  virtual uint64_t effective_iev_attempts() const {return iev;}
 
   template<class T> using Collection = std::unordered_map<std::string, T>;
 
