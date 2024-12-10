@@ -139,7 +139,7 @@ void AnalysisBase::standard_output() {
   for(auto label: ordered_labels(xsections)) {
     auto & obj = xsections[label];
     int n = obj.n();
-    obj.set_n(iev); // for errors on xsc
+    obj.set_n(effective_iev_attempts()); // for errors on xsc
     ostr << "# " << label << ": xsc = " << obj.sum()*norm 
          << " +- " << obj.error_on_sum()*norm << " "+units_string() ;
     
@@ -158,7 +158,7 @@ void AnalysisBase::standard_output() {
     if (obj.ref_xsection == "" && ! obj.internal_ref) {
       // GPS WARNING: this is only good if we have a total weight
       avnorm = 1.0/total_weight;
-      obj.set_n(iev); // for errors on xsc
+      obj.set_n(effective_iev_attempts()); // for errors on xsc
     } else {
       if (obj.internal_ref) ref_xsection = & obj.ref_xsection_value;
       else                  ref_xsection = & xsections[obj.ref_xsection];

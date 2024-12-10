@@ -19,7 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AveragingHist output now includes a "cols: ..." line
 - added -git-info yes/no (or -no-git-info) option to determine whether
   runtime git info is included in the output
-  
+- AverageAndError now has an add_n_zeroes(...) method
+- introduced virtual AnalysisBase::effective_iev_attempts(), which can
+  be overridden to allow for error handling in more complex generation
+  schemes (e.g. when using a single overestimate weight but a
+  normalisation that takes into account that many event generation
+  attempts were unsuccessful).
+
+
+
 ## [1.1.0] updates on 2023-01-31
 
 ### Changed
