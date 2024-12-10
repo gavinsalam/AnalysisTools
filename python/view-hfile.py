@@ -46,6 +46,7 @@ def main():
     parser.add_argument("--logy", metavar="regexp", type=str, default = "", 
                         help="use log scale for anything that matches the regexp")
     parser.add_argument("--norm", help="plot histograms normalised to the first file", action="store_true")
+    parser.add_argument("--value-and-ratio","-r", help="plot histograms and a version normalised to the first file", action="store_true")
 
     parser.add_argument("--only", type=str, help='Plot only histograms who name matches this regexp')
 
@@ -96,7 +97,14 @@ def main():
         for ih, histogram in enumerate(hfiles[0].histograms):
             if args.only and not re.search(args.only, histogram.name): continue
             print("Plotting histogram", histogram.name)
-            fig,ax = plt.subplots()
+            if args.value_and_ratio:
+                fig,(axh,ax) = plt.subplots(nrows=2, sharex = True, figsize = (5,6))
+                # turn on tight layout
+                #plt.tight_layout()
+                # reduce space between subplots
+                plt.subplots_adjust(hspace=0.05)
+            else:
+                fig,ax = plt.subplots()
             # get minor ticks to show up with automatic spacing
             ax.xaxis.set_minor_locator(AutoMinorLocator())
             ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -105,7 +113,7 @@ def main():
             if args.yrange: ax.set_ylim([float(y) for y in args.yrange.split(',')])
             histogram.set_axes_data(ax)
             if args.xlabel: ax.set_xlabel(args.xlabel)
-            if args.ylabel: ax.set_ylabel(args.xlabel)
+            if args.ylabel: ax.set_ylabel(args.ylabel)
 
             if args.logy and re.search(args.logy, histogram.name): ax.set_yscale('log')
 
@@ -115,7 +123,15 @@ def main():
                 # hh = hfiles[ihfiles].histograms[ih]
                 # if hh.name != histogram.name:
                 #     raise ValueError(f"histogram {histogram.name} not found in file {filenames[ihfiles]}")
-                if (args.norm): 
+                if args.norm: 
+                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles], norm=hfiles[0].histograms[ih]) 
+                elif args.value_and_ratio:
+                    if ihfiles == 0: 
+                        axh.set_title(ax.get_title())
+                        axh.set_ylabel(ax.get_ylabel()+"")
+                        ax.set_ylabel("ratio to first")
+                        ax.set_title("")
+                    hh.plot_to_axes(axh, **styles[ihfiles%nstyles]) 
                     hh.plot_to_axes(ax, **styles[ihfiles%nstyles], norm=hfiles[0].histograms[ih]) 
                 else:
                     hh.plot_to_axes(ax, **styles[ihfiles%nstyles]) 
