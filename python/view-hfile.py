@@ -52,6 +52,8 @@ def main():
 
     parser.add_argument("--yrange", metavar="min,max", type=str, default = "", 
                         help="y range for all plots")
+    parser.add_argument("--ratio-range", metavar="min,max", type=str, default = "", 
+                        help="y range in ratios for all plots")
     parser.add_argument("--xrange", metavar="min,max", type=str, default = "", 
                         help="x range for all plots")
     parser.add_argument("--xlabel", type=str, help="x-axis label")
@@ -103,19 +105,22 @@ def main():
                 #plt.tight_layout()
                 # reduce space between subplots
                 plt.subplots_adjust(hspace=0.05)
+                if args.ratio_range: ax.set_ylim([float(y) for y in args.ratio_range.split(',')])
             else:
                 fig,ax = plt.subplots()
+                axh = ax # this alias helps avoid some ifs below
+
             # get minor ticks to show up with automatic spacing
             ax.xaxis.set_minor_locator(AutoMinorLocator())
             ax.yaxis.set_minor_locator(AutoMinorLocator())
             # set the y range if requested
             if args.xrange: ax.set_xlim([float(y) for y in args.xrange.split(',')])
-            if args.yrange: ax.set_ylim([float(y) for y in args.yrange.split(',')])
+            if args.yrange: axh.set_ylim([float(y) for y in args.yrange.split(',')])
             histogram.set_axes_data(ax)
             if args.xlabel: ax.set_xlabel(args.xlabel)
             if args.ylabel: ax.set_ylabel(args.ylabel)
 
-            if args.logy and re.search(args.logy, histogram.name): ax.set_yscale('log')
+            if args.logy and re.search(args.logy, histogram.name): axh.set_yscale('log')
 
             for ihfiles in range(nfiles):
                 hh = hfiles[ihfiles].by_name(histogram.name)
