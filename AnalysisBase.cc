@@ -160,8 +160,17 @@ void AnalysisBase::standard_output() {
       avnorm = 1.0/total_weight;
       obj.set_n(effective_iev_attempts()); // for errors on xsc
     } else {
-      if (obj.internal_ref) ref_xsection = & obj.ref_xsection_value;
-      else                  ref_xsection = & xsections[obj.ref_xsection];
+      if (obj.ref_xsection != "") {
+        // an explicit reference cross section overrides any internal reference
+        // even if the internal reference is set
+        ref_xsection = & xsections[obj.ref_xsection];
+      } else if (obj.internal_ref) {
+        ref_xsection = & obj.ref_xsection_value;
+      } else {
+        assert(false && "Should not get here");
+      }
+      //if (obj.internal_ref) ref_xsection = & obj.ref_xsection_value;
+      //else                  ref_xsection = & xsections[obj.ref_xsection];
       avnorm = 1.0/ref_xsection->sum();
       obj.set_n(ref_xsection->n()); // for errors
     }

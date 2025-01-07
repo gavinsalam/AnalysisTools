@@ -13,6 +13,10 @@
 - new python/view-hfile.py script, relying on the above, to plot all histograms from a file
 
 
+## Bug fixes
+- averages[...].set_ref() was being ignored if the average was being
+  filled with add_entry(value,weight); that's now fixed
+
 # 1.1.0 2024-01-31
 
 NEWS is incomplete up to and including 1.1.0
