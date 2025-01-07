@@ -14,7 +14,7 @@
 
 
 ## Bug fixes
-- averages[...].set_ref() was being ignored if the average was being
+- averages[...].set_ref(xsc_label) was being ignored if the average was being
   filled with add_entry(value,weight); that's now fixed
 
 # 1.1.0 2024-01-31
