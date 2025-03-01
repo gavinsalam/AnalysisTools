@@ -956,7 +956,7 @@ class ValueAndError(object):
             self.check_correlation(fact)
             prod = self.value*fact.value
             err  = np.sqrt(self.value**2 * fact.error**2 + fact.value**2 * self.error**2)
-            return ValueAndError(prod, err , self.labels.union(fact.labels))
+            return ValueAndError(prod, err , self.labels | fact.labels)
         else:
             return ValueAndError(self.value*fact, self.error*np.abs(fact), self.labels)
         
@@ -964,7 +964,7 @@ class ValueAndError(object):
         if (isinstance(fact,ValueAndError)):
             return self.__mul__(fact.inverse())
         else:
-            return ValueAndError(self.value/fact, self.error/np.abs(fact))
+            return ValueAndError(self.value/fact, self.error/np.abs(fact), self.labels)
 
     def __rtruediv__(self,fact):
         return fact * self.inverse()
@@ -972,36 +972,34 @@ class ValueAndError(object):
     def __add__(self,other):
         if (isinstance(other,ValueAndError)):
             self.check_correlation(other)
-            return ValueAndError(self.value+other.value, np.sqrt(self.error**2+other.error**2))
+            return ValueAndError(self.value+other.value, np.sqrt(self.error**2+other.error**2), self.labels | other.labels)
         else:
-            return ValueAndError(self.value+other, self.error)
+            return ValueAndError(self.value+other, self.error, self.labels)
         
     def __radd__(self,other):
         if (isinstance(other,ValueAndError)):
             raise TypeError('radd should never have ValueAndError as "other"')
-            #return ValueAndError(self.value+other.value, np.sqrt(self.error**2+other.error**2))
         else:
-            return ValueAndError(self.value+other, self.error)
+            return ValueAndError(self.value+other, self.error, self.labels)
 
     def __sub__(self,other):
         if (isinstance(other,ValueAndError)):
             self.check_correlation(other)
-            return ValueAndError(self.value-other.value, np.sqrt(self.error**2+other.error**2))
+            return ValueAndError(self.value-other.value, np.sqrt(self.error**2+other.error**2), self.labels | other.labels)
         else:
-            return ValueAndError(self.value-other, self.error)
+            return ValueAndError(self.value-other, self.error, self.labels)
 
     def __rsub__(self,other):
         if (isinstance(other,ValueAndError)):
             raise TypeError('rsub should never have ValueAndError as "other"')
-            #return ValueAndError(other.value - self.value, np.sqrt(self.error**2+other.error**2))
         else:
-            return ValueAndError(other - self.value, self.error)
+            return ValueAndError(other - self.value, self.error, self.labels)
 
     def __pow__(self,power):
-        return ValueAndError(self.value**power, np.abs(power * self.value**(power-1)) * self.error)
+        return ValueAndError(self.value**power, np.abs(power * self.value**(power-1)) * self.error, self.labels)
         
     def __neg__(self):
-        return ValueAndError(-self.value, self.error)
+        return ValueAndError(-self.value, self.error, self.labels)
     
     def __repr__(self):
         return f'{self.value} ± {self.error}'
@@ -1011,7 +1009,7 @@ class ValueAndError(object):
 
     def __getitem__(self, *args):
         '''Returns a ValueAndError object with the subscripting applied 
-        to individual elements the value and the error.
+        to individual elements of the value and the error.
 
         For use, e.g., when both are numpy arrays. NB, cannot
         currently handle the case when one is a numpy array while the
@@ -1060,13 +1058,31 @@ def unit_tests():
     # check for warnings on correlated operations
     a = ValueAndError(1.0,0.1,'a')
     b = ValueAndError(2.0,0.2,'b')
-    c = a*b
-    for operation in ("a+c", "a/c", "a-c", "a*c"):
-        try:
-            d = eval(operation)
-            raise ValueError(f"Operation {operation} should have raised a UserWarning")
-        except UserWarning:
-            pass
+    ops = ["*", "/", "+", "-"]
+    for op1 in ops:
+       for op2 in ops:
+           for template in ("c = a {op1} b; d = c {op2} a", #< check c, a correlation
+                            "c = a {op1} b; d = c {op2} b", #< check c, b correlation
+                            "a {op1}= b; a {op2}= a",       #< check a, a correlation
+                            "a {op1}= b; a {op2}= b",       #< check a, b correlation
+                            "c = a {op1} b; a {op1}= 0.3; a {op2}= c" #< check correlations aren't lost with scalar operations
+                            ):
+            try:
+                instr = template.format(op1=op1,op2=op2)
+                #print(instr, expect_warning)
+                exec(instr)
+                raise ValueError(f"Operation `{instr}` should have raised a UserWarning")
+            except UserWarning:
+                pass
+
+    #for operation in ("d = a+c", "d = a/c", "d = a-c", "d = a*c", "a -= c", "a += c", "a *= c", "a /= c"):
+    #    try:
+    #        a -= c
+    #        print(operation)
+    #        exec(operation)
+    #        raise ValueError(f"Operation {operation} should have raised a UserWarning")
+    #    except UserWarning:
+    #        pass
         
     #counts_v_time = get_array_plus_comments("testing/example.dat", "histogram:counts-v-time", columns={'time':0, 'count':[1,2]})
     #print(counts_v_time.count, counts_v_time.count.labels)
