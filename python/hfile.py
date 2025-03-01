@@ -915,8 +915,22 @@ class ValueAndError(object):
     '''
     def __init__(self,value,error,label=None):
         '''Create an object from an input value and error, which can be
-        plain numbers or numpy arrays; if a label is provided that
-        label is used to 
+        plain numbers or numpy arrays; 
+        
+        Parameters
+        ----------
+
+        value : float or numpy array
+          the value
+        
+        error : float or numpy array
+          the error on the value
+
+        label        
+          if provided this is used as the label (can also be
+          a set of labels), if not then the object gets a unique label
+          based on id(self); labels are used for tracking correlations
+        
         '''      
         self.value = value
         self.error = np.abs(error)
@@ -998,6 +1012,13 @@ class ValueAndError(object):
         return ValueAndError(self.value.__getitem__(*args), self.error.__getitem__(*args))
     
     def inverse(self):
+        """Return 1.0/self, with the error propagated
+
+        For example
+        >>> a = ValueAndError(2.0,0.1)
+        >>> print(a.inverse())
+        0.5 ± 0.025
+        """
         return ValueAndError(1.0/self.value, self.error/self.value**2, self.labels)
 
     def is_correlated(self, other):
@@ -1024,6 +1045,7 @@ class ValueAndError(object):
                           f"*** Run script as `python3 -W error scriptname.py` to get a traceback ***")
 
 def unit_tests():
+    """Unit tests that cannot easily be included as part of the doctest"""
     import warnings
     # convert warnings to errors, so that we can test for them
     warnings.simplefilter("error")
@@ -1037,16 +1059,16 @@ def unit_tests():
             raise ValueError(f"Operation {operation} should have raised a UserWarning")
         except UserWarning:
             pass
-    #try:
-    #  d = c*a
-    #  raise ValueError("d=c*a operation should have raised a UserWarning")
-    #except UserWarning:
-    #  pass
-
-    counts_v_time = get_array_plus_comments("testing/example.dat", "histogram:counts-v-time", columns={'time':0, 'count':[1,2]})
-    print(counts_v_time.count, counts_v_time.count.labels)
+        
+    #counts_v_time = get_array_plus_comments("testing/example.dat", "histogram:counts-v-time", columns={'time':0, 'count':[1,2]})
+    #print(counts_v_time.count, counts_v_time.count.labels)
 
 if __name__ == "__main__": 
   import doctest
-  doctest.testmod()
+  nfailures, ntests = doctest.testmod()
+  if nfailures == 0:
+      print(f"All {ntests} doctests passed")
+  else:
+      print(f"{nfailures} doctests failed out of {ntests}")
+      exit(1)
   unit_tests()
