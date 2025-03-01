@@ -5,6 +5,10 @@ numpy arrays that can then be manipulated before plotting. This module
 also includes some helper routines for manipulating the results
 (e.g. rebinning) and searching through the file.
 
+To run unit tests, from within this file's directory, run
+
+  python3 -m hfile
+
 """
 from builtins import range
 from builtins import str
