@@ -128,7 +128,7 @@ class ArrayPlusComments(object):
     https://docs.scipy.org/doc/numpy-1.13.0/user/basics.subclassing.html
     
     '''
-    def __init__(self, header, array, footer, columns = None):
+    def __init__(self, header, array, footer, columns = None, label = None):
         self.header = header
         self.array  = array
         self.footer = footer
@@ -141,7 +141,8 @@ class ArrayPlusComments(object):
         if (columns is not None):
             for (key,col) in columns.items():
                 if (isinstance(col, list) or isinstance(col,tuple)) and len(col)==2:
-                    setattr(self,key,ValueAndError(array[:,col[0]],array[:,col[1]]))
+                    labelcol = label+str(col) if label else None
+                    setattr(self,key,ValueAndError(array[:,col[0]], array[:,col[1]], label = labelcol))
                 else:
                     setattr(self,key,array[:,col])
 
@@ -179,7 +180,9 @@ def get_array_plus_comments(file, regexp=None, fortran=False, columns = None):
   Additionally it is possible to specify column names (columns start
   from 0) by passing the columns argument, e.g.
 
-    get_array_plus_comment(file, regexp, columns = {'x':0, 'y':1, 'err':2})
+  >>> r = get_array_plus_comments("testing/example.dat", "counts-v-time", columns = {'t':0, 'c':1, 'err':2})
+  >>> print(r.t)
+  [0. 1. 2.]
 
   If a column is specified as 'y':[1,2] then the result is returned as a
   ValueAndError object
@@ -192,8 +195,11 @@ def get_array_plus_comments(file, regexp=None, fortran=False, columns = None):
   
   # if file is a string, assume it's a filename, otherwise a filehandle
   header = ''
-  if (isinstance(file,str)) : file = open_any(file, 'r')
-  if (regexp != None)              : header = search(file,regexp, return_line = True)
+  closeFile = False
+  if (isinstance(file,str)) : 
+     file = open_any(file, 'r')
+     closeFile = True
+  if (regexp != None)       : header = search(file,regexp, return_line = True)
 
   # handle case where we numbers such as 0.4d3 (just replace d -> e)
   fortranRegex = re.compile(r'd', re.IGNORECASE)
@@ -217,6 +223,7 @@ def get_array_plus_comments(file, regexp=None, fortran=False, columns = None):
     if (fortran): line = re.sub(fortranRegex,'e',line) # handle fortran double-prec
     lines.append(line)                         # collect the line
     started = True
+  if closeFile: file.close()
   # do some basic error checking
   if (len(lines) < 1):
     raise Error(f"Block in get_array_plus_comments had 0 useful lines (called with file={file}, regexp={regexp})")
@@ -225,7 +232,7 @@ def get_array_plus_comments(file, regexp=None, fortran=False, columns = None):
   num_array = np.empty( (len(lines), ncol) )
   for i in range(len(lines)):
     num_array[i,:] = lines[i].split()
-  return ArrayPlusComments(header, num_array, footer, columns)
+  return ArrayPlusComments(header, num_array, footer, columns, label = file.name+" "+str(regexp))
     
 
 #----------------------------------------------------------------------
@@ -899,24 +906,37 @@ class ValueAndError(object):
 
     The object can also be initialised with numpy arrays and operations 
     then apply element by element.  
+
+    For example
+    >>> a = ValueAndError(1.0,0.3)
+    >>> b = ValueAndError(2.0,0.4)
+    >>> print(a+b)
+    3.0 ± 0.5
     '''
-    def __init__(self,value,error):
+    def __init__(self,value,error,label=None):
         '''Create an object from an input value and error, which can be
-        plain numbers or numpy arrays
+        plain numbers or numpy arrays; if a label is provided that
+        label is used to 
         '''      
         self.value = value
         self.error = np.abs(error)
+        # if the label is a set, then we assume it's a set of labels
+        if isinstance(label,set):
+          self.labels = label
+        else:
+          self.labels = {label} if label else {id(self)}
 
     def __rmul__(self,fact):
         return self*fact
 
     def __mul__(self,fact):
         if (isinstance(fact,ValueAndError)):
+            self.check_correlation(fact)
             prod = self.value*fact.value
             err  = np.sqrt(self.value**2 * fact.error**2 + fact.value**2 * self.error**2)
-            return ValueAndError(prod, err)
+            return ValueAndError(prod, err , self.labels.union(fact.labels))
         else:
-            return ValueAndError(self.value*fact, self.error*np.abs(fact))
+            return ValueAndError(self.value*fact, self.error*np.abs(fact), self.labels)
         
     def __truediv__(self,fact):
         if (isinstance(fact,ValueAndError)):
@@ -929,6 +949,7 @@ class ValueAndError(object):
         
     def __add__(self,other):
         if (isinstance(other,ValueAndError)):
+            self.check_correlation(other)
             return ValueAndError(self.value+other.value, np.sqrt(self.error**2+other.error**2))
         else:
             return ValueAndError(self.value+other, self.error)
@@ -942,6 +963,7 @@ class ValueAndError(object):
 
     def __sub__(self,other):
         if (isinstance(other,ValueAndError)):
+            self.check_correlation(other)
             return ValueAndError(self.value-other.value, np.sqrt(self.error**2+other.error**2))
         else:
             return ValueAndError(self.value-other, self.error)
@@ -976,4 +998,55 @@ class ValueAndError(object):
         return ValueAndError(self.value.__getitem__(*args), self.error.__getitem__(*args))
     
     def inverse(self):
-        return ValueAndError(1.0/self.value, self.error/self.value**2)
+        return ValueAndError(1.0/self.value, self.error/self.value**2, self.labels)
+
+    def is_correlated(self, other):
+        """
+        Return True if the ValueAndError objects have any labels in common
+
+        For example:
+        >>> a = ValueAndError(1.0,0.1)
+        >>> b = ValueAndError(2.0,0.2)
+        >>> a.is_correlated(b)
+        False
+        >>> c = a*b
+        >>> c.is_correlated(a)
+        True
+        """
+        if self.labels.intersection(other.labels): return True
+        else: return False
+    
+    def check_correlation(self, other):
+        if self.is_correlated(other):
+            import warnings
+            warnings.warn(f"Warning, applying binary operator on ValueAndError objects that are correlated, "
+                          f"with labels {self.labels} and {other.labels};\n"
+                          f"*** Run script as `python3 -W error scriptname.py` to get a traceback ***")
+
+def unit_tests():
+    import warnings
+    # convert warnings to errors, so that we can test for them
+    warnings.simplefilter("error")
+    # check for warnings on correlated operations
+    a = ValueAndError(1.0,0.1,'a')
+    b = ValueAndError(2.0,0.2,'b')
+    c = a*b
+    for operation in ("a+c", "a/c", "a-c", "a*c"):
+        try:
+            d = eval(operation)
+            raise ValueError(f"Operation {operation} should have raised a UserWarning")
+        except UserWarning:
+            pass
+    #try:
+    #  d = c*a
+    #  raise ValueError("d=c*a operation should have raised a UserWarning")
+    #except UserWarning:
+    #  pass
+
+    counts_v_time = get_array_plus_comments("testing/example.dat", "histogram:counts-v-time", columns={'time':0, 'count':[1,2]})
+    print(counts_v_time.count, counts_v_time.count.labels)
+
+if __name__ == "__main__": 
+  import doctest
+  doctest.testmod()
+  unit_tests()
