@@ -5,7 +5,7 @@ numpy arrays that can then be manipulated before plotting. This module
 also includes some helper routines for manipulating the results
 (e.g. rebinning) and searching through the file.
 
-To run unit tests, from within this file's directory, run
+To run unit tests, do
 
   python3 -m hfile
 
@@ -14,6 +14,7 @@ from builtins import range
 from builtins import str
 from builtins import object
 import copy
+import os
 
 # This file is based on an earlier version written by Gavin P. Salam
 # (2011)
@@ -36,6 +37,9 @@ default_border_lw = 1
 
 default_encoding='utf-8'
 
+module_path = __file__
+module_directory = os.path.dirname(os.path.realpath(module_path))
+datafile=module_directory+"/testing/example.dat"
 
 #----------------------------------------------------------------------
 class Error(Exception):
@@ -184,7 +188,7 @@ def get_array_plus_comments(file, regexp=None, fortran=False, columns = None):
   Additionally it is possible to specify column names (columns start
   from 0) by passing the columns argument, e.g.
 
-  >>> r = get_array_plus_comments("testing/example.dat", "counts-v-time", columns = {'t':0, 'c':1, 'err':2})
+  >>> r = get_array_plus_comments(datafile, "counts-v-time", columns = {'t':0, 'c':1, 'err':2})
   >>> print(r.t)
   [0. 1. 2.]
 

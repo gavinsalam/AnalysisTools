@@ -18,4 +18,4 @@ jobs:
         - name: Run python unit tests
           run: |
               cd python
-              python3 -m hfile
+              python3 hfile.py
