@@ -213,7 +213,7 @@ if ($outfile) {print STDERR ", being written to $outfile";}
 print STDERR "\n";
 if ($nevinfo) {exit(0);}
 
-$nLines = 0;
+$n_lines = 0;
 $n_identical_lines = 0;
 while () {
   $good = 0;
@@ -264,7 +264,7 @@ while () {
     # a check for identical lines, e.g. in case seeds were accidentally set the same
     if ($ifile == 0) {
       $identicalLine = 0;
-      if (!$comment_line) {$nLines++;}
+      if (!$comment_line) {$n_lines++;}
     } else {
       if (!$comment_line && $line eq $lastline) {$identicalLine = 1}
     }
@@ -389,9 +389,9 @@ while () {
   if ($identicalLine) {$n_identical_lines++;}
   print $OUT join(' ', @out)."\n";
 }
-if ($n_identical_lines > 0) {
+if ($n_identical_lines > 0 && $n_identical_lines == $n_lines) {
   print STDERR "WARNING: found $n_identical_lines instances of identical non-comment lines between files, ".
-               "out of a total of $nLines non-comment lines. NB some may be legitimate, e.g. histogram bins with zero events.\n";
+               "out of a total of $n_lines non-comment lines. NB some may be legitimate, e.g. histogram bins with zero events.\n";
 }
 
 
