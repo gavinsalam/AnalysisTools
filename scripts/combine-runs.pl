@@ -213,6 +213,8 @@ if ($outfile) {print STDERR ", being written to $outfile";}
 print STDERR "\n";
 if ($nevinfo) {exit(0);}
 
+$nLines = 0;
+$n_identical_lines = 0;
 while () {
   $good = 0;
   @out = ();
@@ -225,6 +227,7 @@ while () {
   @wgt=();
   $totwgt=0;
   $wascomment = 0;
+  $identicalLine = 0;
   for($ifile = 0; $ifile < $nfile; $ifile++) {
     $HANDLE = $HANDLES[$ifile];
     #while ($good = ($line = <$HANDLE>)) {if ($line !~ /^# /) {last;}}
@@ -247,7 +250,8 @@ while () {
       }
     }
 
-    if ($ignorecomments && $line =~ /^#/) {
+    $comment_line = ($line =~ /^$commentchar/);
+    if ($ignorecomments && $comment_line) {
       # take comment from first instance
       if ($ifile == 0) {
         print $OUT $line;
@@ -256,6 +260,16 @@ while () {
       next;
     }
     chomp ($line);
+
+    # a check for identical lines, e.g. in case seeds were accidentally set the same
+    if ($ifile == 0) {
+      $identicalLine = 0;
+      if (!$comment_line) {$nLines++;}
+    } else {
+      if (!$comment_line && $line eq $lastline) {$identicalLine = 1}
+    }
+    $lastline = $line;
+
 
     # if a line is empty and we are not taking ecol info from the
     # command line, then reset the ecol information, so that it doesn't
@@ -372,7 +386,12 @@ while () {
       }
     } elsif ($err && !$noNaN) {$out[$icol] .= " NaN";}
   };
+  if ($identicalLine) {$n_identical_lines++;}
   print $OUT join(' ', @out)."\n";
+}
+if ($n_identical_lines > 0) {
+  print STDERR "WARNING: found $n_identical_lines instances of identical non-comment lines between files, ".
+               "out of a total of $nLines non-comment lines. NB some may be legitimate, e.g. histogram bins with zero events.\n";
 }
 
 

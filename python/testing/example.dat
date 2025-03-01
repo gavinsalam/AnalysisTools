@@ -1,6 +1,6 @@
 # example file for testing hfile.py
 #
-# nevents = 100
+# nev = 100
 # nchannels = 10
 #
 # histogram:counts-v-time
