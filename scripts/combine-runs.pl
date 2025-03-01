@@ -391,7 +391,9 @@ while () {
 }
 if ($n_identical_lines > 0 && $n_identical_lines == $n_lines) {
   print STDERR "WARNING: found $n_identical_lines instances of identical non-comment lines between files, ".
-               "out of a total of $n_lines non-comment lines. NB some may be legitimate, e.g. histogram bins with zero events.\n";
+               "out of a total of $n_lines non-comment lines. NB some may be legitimate, e.g. histogram bins ".
+               "with zero events. But typically this warning would indicate invalid combination of statistically ".
+               "identical files, e.g. because of accidental use of identical seeds.\n";
 }
 
 
