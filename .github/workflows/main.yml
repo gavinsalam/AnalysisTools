@@ -1,0 +1,21 @@
+name: build
+on:
+ push:
+ pull_request:
+ schedule:
+    # Once a month on the 3rd day at midnight
+    - cron: "0 0 3 * *"
+    
+jobs:  
+    check-hfile:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v3
+        - name: Install dependencies
+          run: |
+              apt update -y
+              apt install python3-numpy
+        - name: Run unit tests
+          run: |
+              cd python
+              python3 -m hfile.py
