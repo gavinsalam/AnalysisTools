@@ -33,10 +33,10 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                       help("sets the initial output interval (which is then progressively increased)");
 
   if(default_output_filename.empty()) {
-    output_filename = cmdline->any_value<string>({"-o","-out"})
+    output_filename = cmdline->value<string>({"-o","-out"})
                               .help("filename for output").argname("filename");
   } else {
-    output_filename = cmdline->any_value<string>({"-o","-out"}, default_output_filename)
+    output_filename = cmdline->value<string>({"-o","-out"}, default_output_filename)
                               .help("filename for output").argname("filename");
   }
   
