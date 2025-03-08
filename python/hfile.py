@@ -423,7 +423,9 @@ class Histogram(ArrayPlusComments):
        
 
     def plot_to_axes(self, ax, norm = None, **extra):
-        """Plot the histogram to the given axes, possibly normalised by the histogram specified by the norm argument"""
+        """Plot the histogram to the given axes, possibly normalised by 
+        the histogram specified by the norm argument (that histogram's error is 
+        not included in the error estimate of the ratio)"""
         # multiply by 1.0 to make sure that we take a copy before
         # subsequent normalisation
         contents = 1.0 * self.value_or_ValueAndError() 
@@ -431,7 +433,9 @@ class Histogram(ArrayPlusComments):
         combined_args = self.plot_args.copy()
         combined_args.update(extra)
 
-        if norm is not None: contents /= norm.value_or_ValueAndError()
+        # divide by the value, not by the ValueAndError object, to
+        # avoid issues when the self and norm are the same thing
+        if norm is not None: contents /= norm.value_array()
         if self.has_error():
             line_and_band(ax,self.x_array(), contents, **combined_args)
         else:
@@ -1049,6 +1053,8 @@ class ValueAndError(object):
             warnings.warn(f"Warning, applying binary operator on ValueAndError objects that are correlated, "
                           f"with labels {self.labels} and {other.labels};\n"
                           f"*** Run script as `python3 -W error scriptname.py` to get a traceback ***")
+            #import traceback
+            #traceback.print_stack()
 
 def unit_tests():
     """Unit tests that cannot easily be included as part of the doctest"""
