@@ -23,16 +23,9 @@
 
 
 ## Other changes
-
 - scripts/combine-runs.pl now tries to check for identical lines between
   successive files and issues a warning if for each line it finds at
   least one repetition across successive files.
-
-- SimpleHistWithError how has methods set_n_for_error(...) and
-  n_for_error(), with the error calculation now using the value from
-  set_n_for_error() if it is > 0; the output of AnalysisBase now
-  sets n_for_error to effective_iev_attempts() SimpleHistWithError objects.
-
 
 ## Bug fixes
 - averages[...].set_ref(xsc_label) was being ignored if the average was being

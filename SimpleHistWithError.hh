@@ -19,34 +19,12 @@ public:
 
   void _init() override {
     SimpleHist::_init();
-    _weights_sumsqr.resize(outflow_size(), 0.0);
-    _n_for_error = 0.0;
+    _weights_sumsqr.resize(outflow_size());
   }
   void reset() {
     SimpleHist::reset();
     _weights_sumsqr = 0.0;
-    _n_for_error = 0.0;
   }
-
-  /// @brief set the number of entries in the histogram for error calculations
-  /// 
-  /// @param n_in the number to set the entries to
-  ///
-  /// This can be useful for error handling, where one may
-  /// want to use the total number of events in the sample
-  /// rather than the total number in the histogram
-  void set_n_for_error(double n_in) {_n_for_error = n_in;}
-
-  /// @brief  return the total number of entries to be used for the error calculation
-  ///
-  /// If the user has called set_n_for_error() to a number > 0, then that number
-  /// is used, otherwise the actual number of entries in the histogram is used.
-  double n_for_error() const {
-    if (_n_for_error > 0.0) return _n_for_error;
-    else                    return _n_entries;
-  }
-
-
   /// returns the sum of squared weights in the bin
   double & sumsqr(unsigned i)  {return _weights_sumsqr[i];}
 
@@ -135,10 +113,9 @@ protected:
   }
 
   double error_calc(double sum, double sumsq) const {
-    return std::sqrt(std::abs(sumsq - sum*sum/n_for_error()));
+    return std::sqrt(std::abs(sumsq - sum*sum/n_entries()));
   }
   std::valarray<double> _weights_sumsqr;
-  double _n_for_error;
 };
 
 inline SimpleHistWithError operator*(double fact, const SimpleHistWithError & hist) {

@@ -95,7 +95,6 @@ public:
     return _total_weight;
   }
 
-  /// @brief return the total number of entries in the histogram
   double n_entries() const {return _n_entries;}
 
   /// add an entry to the bin in which v falls

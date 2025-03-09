@@ -206,18 +206,15 @@ void AnalysisBase::standard_output() {
   }
 
   // write out normal histograms with errors and cumulative variants
-  for (const auto & label: ordered_labels(hists_err)) {    
-    auto & obj = hists_err[label];
-    obj.set_n_for_error(effective_iev_attempts());
+  for (const auto & label: ordered_labels(hists_err)) {
+    const auto & obj = hists_err[label];
     ostr << "# diff_hist:" << label << endl;
     ostr << "# ecol = 5" << endl;
     (norm*obj).output_diff(ostr) << endl << endl;
-    obj.set_n_for_error(0.0);
   }
 
   for (const auto & label: ordered_labels(cumul_hists_err)) {
-    auto & obj = cumul_hists_err[label];
-    obj.set_n_for_error(effective_iev_attempts());
+    const auto & obj = cumul_hists_err[label];
     ostr << "# diff_hist:" << label << endl;
     ostr << "# ecol = 5" << endl;
     (norm*obj).output_diff(ostr) << endl << endl;
@@ -225,7 +222,6 @@ void AnalysisBase::standard_output() {
     ostr << "# cumul_hist:" << label << endl;
     ostr << "# ecol = 3" << endl;
     (norm*obj).output_cumul(ostr) << endl << endl;
-    obj.set_n_for_error(0.0);
   }
 
   // output gen_hists
