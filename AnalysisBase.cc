@@ -42,7 +42,7 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
   
   bool user_git_info = cmdline->value_bool("-git-info", true)
          .help("include runtime git status in the header() output. "
-               "Use '-no-git-info' or '-git-info no' to disable, e.g. on systems where git repo access is slow").argname("yes/no").no_dump();
+               "Use `-no-git-info` or `-git-info no` to disable, e.g. on systems where git repo access is slow").argname("yes/no").no_dump();
   cmdline->set_git_info_enabled(user_git_info);
 
   cmdline->end_section("Run steering");
