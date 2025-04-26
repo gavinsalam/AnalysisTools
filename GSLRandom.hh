@@ -8,6 +8,7 @@
 #include <memory>
 #include <stdexcept>
 #include <cassert>
+#include <cstdint> // for uint8_t
 // for generator state output as string
 #include <sstream>
 #include <iomanip>
