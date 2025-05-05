@@ -474,6 +474,11 @@ class Histogram(ArrayPlusComments):
 
 class HFile(object):
     def __init__(self,filename):
+        '''Read in an HFile object from the file with the given name.
+        The filename can include labels for the histograms, e.g.
+        "file.dat:label=default" will label the histograms
+        from this file as "default".
+        '''
         has_labels = len(filename.split(':')) > 1
         self.filename = filename.split(':')[0]
         self.plot_args = {}

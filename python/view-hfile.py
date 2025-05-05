@@ -71,7 +71,7 @@ def main():
         hfile = h.HFile(parts[0])
         if len(parts) > 1:
             for part in parts[1:]:
-                hfile += HFile(part)
+                hfile += h.HFile(part)
         hfiles.append(hfile)
         print (f"{hfile.filename}: {hfile.histograms[0].value_array()[0]}")
     nfiles = len(filenames)
