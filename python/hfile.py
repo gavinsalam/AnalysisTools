@@ -620,6 +620,44 @@ def get_xsection(file,regexp,xsc_label='xsc'):
     return result
 
 #----------------------------------------------------------------------
+def get_many_xsections(filenames,regexp_x, regexp_y, **extra):
+    """
+
+    For each of the filenames, extract the XSection corresponding to regexp_y
+    as per get_xsection. 
+    
+    The "x" values are obtained by extracting the first group from the filename
+    using the regexp_x.
+
+    @return a tuple of an numpy array of x values and a ValueAndError object
+    for the y values.
+    
+    Example
+    -------
+    
+    For filenames=["test_Q1.dat", "test_Q2.dat"], with 
+    xsc lines "total: xsc = 1.1 ± 0.1" and "total: xsc = 2.2 ± 0.2" in the files
+
+      xvals, yvals = get_many_xsections(filenames, r"Q(.*).dat", "total")
+
+    will return xvals = [1.0, 2.0] and yvals = [1.1,2.2] ± [0.1,0.2]
+
+    """
+    results_dict = {}
+    for f in filenames:
+        xval = re.findall(regexp_x,f)[0]
+        yval = get_xsection(f,regexp_y, **extra)
+        results_dict[xval] = yval
+
+    results = sorted(results_dict.items(), key=lambda x: float(x[0]))
+    xvals = np.array([float(x[0]) for x in results])
+    yvals = ValueAndError(
+            np.array([x[1].xsc for x in results]),
+            np.array([x[1].err for x in results]),
+        )
+    return xvals, yvals #, [res[1] for res in results]
+
+#----------------------------------------------------------------------
 def search(filehandle, regexp, return_line=False):
   """ looks through the file described by handle until it finds the regexp
   that's mentioned"""
