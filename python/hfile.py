@@ -969,7 +969,7 @@ class ValueAndError(object):
     3.0 ± 0.5
     '''
     def __init__(self,value,error,label=None):
-        '''Create an object from an input value and error, which can be
+        '''Create a ValueAndError object from an input value and error, which can be
         plain numbers or numpy arrays; 
         
         Parameters
