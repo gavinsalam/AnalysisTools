@@ -66,7 +66,7 @@ summary: $combFiles
 # (Would it be better to use wildcards here so that if filelist is
 # updated we don't need to regenerate the Makefile?)
 for $outname (keys %fileGroup) {
-    $fileList = join(" ", @{$fileGroup{$outname}});
+    $fileList = join(" ", sort(@{$fileGroup{$outname}}));
     if ($do_covariance) {
 	print MAKE "
 $outname: $fileList

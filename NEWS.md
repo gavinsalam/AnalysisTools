@@ -27,6 +27,9 @@
   successive files and issues a warning if for each line it finds at
   least one repetition across successive files.
 
+- scripts/auto-combine-runs.pl now sorts the filenames of the files to be combined
+  so as to eliminate randomness in the output across different runs
+
 ## Bug fixes
 - averages[...].set_ref(xsc_label) was being ignored if the average was being
   filled with add_entry(value,weight); that's now fixed
