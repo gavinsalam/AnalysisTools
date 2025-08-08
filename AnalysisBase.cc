@@ -26,8 +26,8 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                            const string & default_output_filename) :
                            cmdline(cmdline_in) {
   cmdline->start_section("Run steering");
-  
-  nev = cmdline->value<double>("-nev", 1e2).help("number of events to generate").argname("nev");
+
+  nev = cmdline->value<unsigned long long int>("-nev", 1e2).help("number of events to generate").argname("nev");
   max_time_s = cmdline->value<double>("-max-time",-1.0).help("Maximum time (in seconds) that the code should run for");
   output_interval = cmdline->value<double>("-output-interval", output_interval).
                       help("sets the initial output interval (which is then progressively increased)");
