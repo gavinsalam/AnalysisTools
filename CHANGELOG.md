@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### C++ components
 - `-nev` now checks value and if `nev` is too large or negative, and 
-  if so `nev` gets set to std::numeric_limits<decltype(nev)>::max();
+  if so `nev` gets set to `std::numeric_limits<decltype(nev)>::max()`
+  (thanks to Roel Aaij for the suggestion).
 - for TemplateDefaultHist, added a declare_once option that returns the underlying
   histogram, e.g. `hists_err["name"].declare_once(binning).add_entry(value);`
 - AveragingHist output now includes a "cols: ..." line
