@@ -27,7 +27,13 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
                            cmdline(cmdline_in) {
   cmdline->start_section("Run steering");
   
-  nev = cmdline->value<double>("-nev", 1e2).help("number of events to generate").argname("nev");
+  auto nev_max = std::numeric_limits<decltype(nev)>::max();
+  double nev_double = cmdline->value<double>("-nev", 1e2).help("number of events to generate (if <0, resets to "+to_string(nev_max)+")").argname("nev");
+  if (nev_double < 0.0 || nev_double > nev_max) {
+    nev = nev_max;
+  } else {
+    nev = nev_double;
+  }
   max_time_s = cmdline->value<double>("-max-time",-1.0).help("Maximum time (in seconds) that the code should run for");
   output_interval = cmdline->value<double>("-output-interval", output_interval).
                       help("sets the initial output interval (which is then progressively increased)");
