@@ -590,8 +590,8 @@ class XSection(object):
         # use the first three numbers of the part beyond the first " = "
         numbers = number_regex.findall(lineRH)
         self.xsc = float(numbers[0])
-        self.err = float(numbers[1])
-        self.nentries = float(numbers[2])
+        self.err = float(numbers[1]) if len(numbers) > 1 else 0.0
+        self.nentries = float(numbers[2]) if len(numbers) > 2 else np.nan
         # recall that "group" gets the first matching group here...
         if xsc_label != "":
           self.units = re.search(r"([a-z]+) \(n entries",line).group((1))
@@ -1073,6 +1073,16 @@ class ValueAndError(object):
         0.5 ± 0.025
         """
         return ValueAndError(1.0/self.value, self.error/self.value**2, self.labels)
+
+    def log(self):
+        """Return the logarithm of self, with the error propagated
+
+        For example
+        >>> a = ValueAndError(2.0,0.1)
+        >>> print(a.log())
+        0.6931471805599453 ± 0.05
+        """
+        return ValueAndError(np.log(self.value), self.error/self.value, self.labels)
 
     def is_correlated(self, other):
         """
