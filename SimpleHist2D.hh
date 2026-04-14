@@ -295,6 +295,7 @@ inline SimpleHist2D pow2(const SimpleHist2D & hist) {
 inline void output_compact(const SimpleHist2D & hist0, 
                    std::ostream * ostr = (&std::cout),
                    double norm = 1.0) {
+  *ostr << "# cols: umid vmid hist" << std::endl;                  
   for (unsigned iu = 0; iu < hist0.nu(); iu++) {
   for (unsigned iv = 0; iv < hist0.nv(); iv++) {
     *ostr << hist0.u_binmid(iu) << " "
@@ -314,6 +315,7 @@ inline void output_compact(const SimpleHist2D & hist0,
 inline void output(const SimpleHist2D & hist0, 
                    std::ostream * ostr = (&std::cout),
                    double norm = 1.0) {
+  *ostr << "# cols: ulo umid uhi vlo vmid vhi hist" << std::endl;                  
   for (unsigned iu = 0; iu < hist0.nu(); iu++) {
   for (unsigned iv = 0; iv < hist0.nv(); iv++) {
     *ostr << hist0.u_binlo(iu)  << " " 

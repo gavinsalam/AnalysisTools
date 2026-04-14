@@ -264,7 +264,7 @@ void AnalysisBase::standard_output() {
          << endl;
     double this_norm = hist_weight != 0.0 ? 1.0/hist_weight : 0;
     
-    output(obj, &ostr, this_norm/obj.binsize());
+    (this_norm*obj).output_diff(ostr) << endl << endl;
     ostr << endl << endl;
   }
 
