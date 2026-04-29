@@ -60,6 +60,7 @@ def main():
     parser.add_argument("--ylabel", type=str, help="y-axis label")
     parser.add_argument("--pdfname", "-o","--out","-out", metavar='pdfname', type=str, default = "", 
                         help='Name of the output PDF file (if not specified, it is derived from first filename)')
+    parser.add_argument("--steps", default=False, action="store_true", help="Plot histograms with steps instead of lines")
 
     args = parser.parse_args()
 
@@ -136,10 +137,10 @@ def main():
                         axh.set_ylabel(ax.get_ylabel()+"")
                         ax.set_ylabel("ratio to first")
                         ax.set_title("")
-                    hh.plot_to_axes(axh, **styles[ihfiles%nstyles]) 
-                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles], norm=hfiles[0].histograms[ih]) 
+                    hh.plot_to_axes(axh, **styles[ihfiles%nstyles], steps=args.steps) 
+                    hh.plot_to_axes(ax , **styles[ihfiles%nstyles], norm=hfiles[0].histograms[ih], steps=args.steps) 
                 else:
-                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles]) 
+                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles], steps=args.steps) 
 
             ax.legend(loc='best')
             pdf.savefig(fig,bbox_inches='tight')

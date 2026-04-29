@@ -350,6 +350,28 @@ class Histogram(ArrayPlusComments):
         except ValueError:
             return self.array_by_tag('v')
 
+    def bin_edges(self):
+        """Return the bin edges for this histogram, as an array of length len(x_array())+1. 
+        - if vlo and vhi are available, these are used to determine the edges
+        - otherwise in a 1-column format we check if the bins are uniform and then deduce the edges
+
+        The result should be suitable for use with ax.stairs(self.value_array(), self.bin_edges())
+        """
+        try:
+            xlo = self.array_by_tag('vlo')
+            edges = np.empty(len(xlo)+1)
+            edges[:-1] = xlo
+            edges[-1] = self.array_by_tag('vhi')[-1]
+        except ValueError:
+            xmid = self.x_array()
+            dx = xmid[:-1] - xmid[1:]
+            if np.any(np.abs(dx[:-1] - dx[1:]) > 1e-4 * np.abs(dx[:-1])): 
+               raise ValueError("Can't determine bin edges from v column because bin widths are not uniform")
+            edges = np.empty(len(xmid)+1)
+            edges[:-1] = xmid     - 0.5 * dx[0]
+            edges[ -1] = xmid[-1] + 0.5 * dx[0]
+        return edges
+
     def has_error(self):
         errcols = [column for column in self.columns if 'err' in column]
         return len(errcols) > 0
@@ -422,7 +444,7 @@ class Histogram(ArrayPlusComments):
         return orig
        
 
-    def plot_to_axes(self, ax, norm = None, **extra):
+    def plot_to_axes(self, ax, norm = None, steps = False, **extra):
         """Plot the histogram to the given axes, possibly normalised by 
         the histogram specified by the norm argument (that histogram's error is 
         not included in the error estimate of the ratio)"""
@@ -437,9 +459,14 @@ class Histogram(ArrayPlusComments):
         # avoid issues when the self and norm are the same thing
         if norm is not None: contents /= norm.value_array()
         if self.has_error():
-            line_and_band(ax,self.x_array(), contents, **combined_args)
+            if steps:
+               #ax.stairs(contents.value, edges = self.bin_edges(), **combined_args)
+               steps_and_band(ax, self.bin_edges(), contents, **combined_args)
+            else:
+               line_and_band(ax,self.x_array(), contents, **combined_args)
         else:
-            ax.plot(self.x_array(), contents, **combined_args)
+            if steps: ax.stairs(contents, edges = self.bin_edges(), **combined_args)
+            else    : ax.plot(self.x_array(), contents, **combined_args)
 
     def set_axes_data(self, ax):
         ax.set_title(self.name)
@@ -565,6 +592,16 @@ def line_and_band(ax,x,val_and_err,**extra):
                     **extra_no_label
                     )
     ax.plot(x,val_and_err.value, **extra)
+
+def steps_and_band(ax,xedges,val_and_err,**extra):
+    extra_no_label = copy.copy(extra)
+    if ('label' in extra_no_label): del extra_no_label['label']
+    y_lo = val_and_err.value-val_and_err.error
+    y_hi = val_and_err.value+val_and_err.error
+    y_lo_step = np.r_[y_lo, y_lo[-1]]
+    y_hi_step = np.r_[y_hi, y_hi[-1]]
+    ax.fill_between(xedges, y_lo_step, y_hi_step, step='post', alpha=0.2, **extra_no_label)
+    ax.stairs(val_and_err.value, edges = xedges, **extra)
 
 #----------------------------------------------------------------------
 class XSection(object):

@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     produced by the Analysis Tools and for plotting
     (matplotlib should be loaded only if needed)
   * line_and_band(...) for plotting a line and a band
+  * steps_and_band(...) for plotting steps and a band
+- view-hfile.py now has --steps option to use steps rather than lines
 - XSection from line sets the error to zero if no value is available
   (was nan)
 - ValueAndError objects now have a log() method
