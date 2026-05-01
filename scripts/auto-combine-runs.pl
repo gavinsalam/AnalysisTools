@@ -33,6 +33,13 @@ while (my $file = readdir(DIR)) {
     if (!exists $fileGroup{$outname}) {$fileGroup{$outname} = [];}
     push @{$fileGroup{$outname}}, $file;
   }
+  # also handle the .CPUn format, currently without worrying about covariances
+  if ($file =~ /(^.*)\.CPU[0-9]+$/) {
+    $outname = $1;
+    if (!exists $fileGroup{$outname}) {$fileGroup{$outname} = [];}
+    push @{$fileGroup{$outname}}, $file;
+  }
+     
 }
 
 $makefile = "Makefile";
