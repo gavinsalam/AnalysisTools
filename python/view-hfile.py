@@ -48,7 +48,8 @@ def main():
     parser.add_argument("--norm", help="plot histograms normalised to the first file", action="store_true")
     parser.add_argument("--value-and-ratio","-r", help="plot histograms and a version normalised to the first file", action="store_true")
 
-    parser.add_argument("--only", type=str, help='Plot only histograms who name matches this regexp')
+    parser.add_argument("--only", type=str, help='Plot only histograms whose name matches this regexp')
+    parser.add_argument("--exclude", "-v", type=str, help='Do not plot histograms whose name matches this regexp')
 
     parser.add_argument("--yrange", metavar="min,max", type=str, default = "", 
                         help="y range for all plots")
@@ -98,7 +99,8 @@ def main():
     # make plot
     with PdfPages(pdffile) as pdf: 
         for ih, histogram in enumerate(hfiles[0].histograms):
-            if args.only and not re.search(args.only, histogram.name): continue
+            if args.only    and not re.search(args.only   , histogram.name): continue
+            if args.exclude and     re.search(args.exclude, histogram.name): continue
             print("Plotting histogram", histogram.name)
             if args.value_and_ratio:
                 fig,(axh,ax) = plt.subplots(nrows=2, sharex = True, figsize = (5,6))
