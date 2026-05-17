@@ -526,7 +526,7 @@ class HFile(object):
             pos = f.tell()
             line = f.readline()
             if line == '': break
-            if re.search(r'hist.*:',line): 
+            if re.search(r'hist[^ ]*:',line): 
                 f.seek(pos)
                 break
             self.header += line
