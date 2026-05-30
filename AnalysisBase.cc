@@ -57,8 +57,7 @@ AnalysisBase::AnalysisBase(CmdLine * cmdline_in,
 
 }
 
-//======================================================================
-void AnalysisBase::run() {
+void AnalysisBase::do_all_init() {
   pre_startup();
   user_startup();
   
@@ -84,9 +83,18 @@ void AnalysisBase::run() {
   double time_elapsed = cmdline->time_elapsed_since_start();
   header << ", elapsed = " << time_elapsed << " s = " << time_elapsed/60.0 << "m = " << time_elapsed/3600.0 << " h";
   header << endl;
-  
+
+  _init_done = true;
+  iev = 0;
+}
+
+//======================================================================
+void AnalysisBase::run() {
+
+  do_all_init();
+
   /// should this go into a separate event_loop routine?
-  for (iev = 0; iev < nev; ) {
+  for (; iev < nev; ) {
 
     bool success = generate_event();
     // what do we do on failure: bail out, or continue round the loop?

@@ -9,6 +9,11 @@
 - AnalysisBase provides a `-git-info [yes|no]` option to control whether git info is
   determined at run time (default on, turn it off on systems where git would be slow)
 
+- added Doxyfile and significantly improved AnalysisBase documentation
+
+- added AnalysisBase::do_all_init() and AnalysisBase::next_event() to
+  facilitate usage in external event loops.
+
 ## New features in Python (still in development)
 
 - hfile.Histogram objects, which accommodate various kinds of histogram and know how to plot themselves
