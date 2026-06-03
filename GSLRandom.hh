@@ -16,6 +16,7 @@
 
 #include <string>
 #include <functional>
+#include <span>
 
 /// A (partial) C++ interface to the GSL random number generators;
 ///
@@ -142,7 +143,28 @@ public:
     return accept(local_value, max_value);
   }
 
+  /// choose an index randomly according to the specified probabilities, which should add up to 1 (but we don't check this)
+  template<typename T>
+  int choose(const T & prob_choices) {return choose(prob_choices, 1.0);}
+  /// choose an index randomly according to the specified probabilities, which should add up to total (but we don't check this)
+  template<typename T>
+  int choose(const T & prob_choices, double total) {return choose(prob_choices, total, uniform()); }
+  /// based on the supplied random number 0<=r<1, choose an index
+  /// according to the specified probabilities, which should add up to
+  /// total (but we don't check this)
+  template<typename T>
+  int choose(const T & prob_choices, double total, double r) const {
+    r *= total;
+    double sum = 0.0;
+    for (std::size_t i = 0; i < prob_choices.size(); ++i) {
+      sum += prob_choices[i];
+      if (r < sum) return i;
+    }
+    throw std::runtime_error("GSLRandom::choose(...): went beyond maximum available prob_choices (could total be wrong, or random number >= 1?)");
+  }
+
   inline std::string name() const {return std::string(gsl_rng_name (_r.get()));}
+
 
   inline gsl_rng * gsl_generator() {return _r.get();}
   inline const gsl_rng * gsl_generator() const {return _r.get();}
