@@ -1,4 +1,13 @@
 
+# Unreleased
+
+## Bug fixes
+
+- In view-hfile.py:
+  - fixed up ylabel that appears with `view-hfile.py --renorm`
+  - fixed up missing documentation about `filename:label=SomeLabel`
+
+
 # 1.2.0 2026-06-19
 
 ## New features in C++

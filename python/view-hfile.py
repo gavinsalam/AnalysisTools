@@ -44,7 +44,8 @@ def main():
     parser = argparse.ArgumentParser(description='Plot histograms from hfile(s)')
     # add argument that gives any number of filenames to plot
     parser.add_argument('filenames', metavar='filename', type=str, nargs='+',
-                        help='hfile(s) to plot')
+                        help='hfile(s) to plot; by default the label will be the :filename", ' \
+                        'but you can add a label by using "filename:label=SomeLabel", where SomeLabel should not contain semi-colons')
     parser.add_argument("--logy", metavar="regexp", type=str, default = "", 
                         help="use log scale for anything that matches the regexp")
     parser.add_argument("--norm", help="plot histograms normalised to the first file", action="store_true")
@@ -52,6 +53,11 @@ def main():
 
     parser.add_argument("--only", type=str, help='Plot only histograms whose name matches this regexp')
     parser.add_argument("--exclude", "-v", type=str, help='Do not plot histograms whose name matches this regexp')
+    parser.add_argument("--merge", default=None, type=str, help="regex of string to remove, e.g. '(good|bad)', "
+                                                                "histograms with identical string post-removal are on the same plot")
+    parser.add_argument("--renorm", default=False, action="store_true", help="Re-normalise histograms by dividing by their total_weight")
+
+    parser.add_argument("--steps", default=False, action="store_true", help="Plot histograms with steps instead of lines")
 
     parser.add_argument("--yrange", metavar="min,max", type=str, default = "", 
                         help="y range for all plots")
@@ -61,13 +67,10 @@ def main():
                         help="x range for all plots")
     parser.add_argument("--xlabel", type=str, help="x-axis label")
     parser.add_argument("--ylabel", type=str, help="y-axis label")
+
     parser.add_argument("--pdfname", "-o","--out","-out", metavar='pdfname', type=str, default = "", 
                         help='Name of the output PDF file (if not specified, it is derived from first filename)')
-    parser.add_argument("--steps", default=False, action="store_true", help="Plot histograms with steps instead of lines")
-    parser.add_argument("--merge", default=None, type=str, help="regex of string to remove, e.g. '(good|bad)', "
-                                                                "histograms with identical string post-removal are on the same plot")
-    parser.add_argument("--renorm", default=False, action="store_true", help="Re-normalise histograms by dividing by their total_weight")
-
+    
     args = parser.parse_args()
 
 
@@ -125,7 +128,6 @@ def main():
             h0name = histogram_list[0]['name']
             if args.only    and not re.search(args.only   , h0name): continue
             if args.exclude and     re.search(args.exclude, h0name): continue
-            print (histogram_list)
             print("Plotting histograms", [h['name'] for h in histogram_list])
             if args.value_and_ratio:
                 fig,(axh,ax) = plt.subplots(nrows=2, sharex = True, figsize = (5,6))
@@ -145,6 +147,7 @@ def main():
             hfiles[ihfiles].by_name(h0name).set_axes_data(ax)
             ax.set_title(histogram_list[0]['common'])
             ax.set_xlabel(re.sub(r'.*?:', '', histogram_list[0]['common']))
+            if args.renorm: ax.set_ylabel("1/histWeight " + ax.get_ylabel())
             if args.xlabel: ax.set_xlabel(args.xlabel)
             if args.ylabel: ax.set_ylabel(args.ylabel)
 

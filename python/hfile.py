@@ -522,7 +522,7 @@ class HFile(object):
         self.filename = filename.split(':')[0]
         self.plot_args = {}
         if(has_labels):
-            for f in filename.split(':')[1].split(" "):
+            for f in filename.split(':')[1].split(";"):
                 key, value = f.split("=")
                 self.plot_args[key] = value
         else:
