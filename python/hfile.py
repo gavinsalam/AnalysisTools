@@ -313,7 +313,7 @@ class Histogram(ArrayPlusComments):
         super().__init__(apc.header, apc.array, apc.footer)
         self.name = ''
         self.columns = []
-        self.plot_args  = plot_args
+        self.plot_args  = copy.copy(plot_args)
 
         header_lines = self.header.split('\n')
         # 
@@ -327,9 +327,14 @@ class Histogram(ArrayPlusComments):
             # raise ("No columns found in header:\n" + self.header)
             # print(self.header)
             # sys.exit(1)
+        total_weight = re.search(r'# total_weight\s*[:=]\s*([0-9.eE+-]+)', self.header)
+        if total_weight:
+            self.total_weight = float(total_weight.group(1))
+
         columns = columns.replace("# cols: ", "")
         columns = re.sub(r'\(.*','',columns)
         self.columns = columns.split()
+
 
     def value_array(self):
         return self.array_by_tag('hist', alt_tag = 'avg')
@@ -413,6 +418,7 @@ class Histogram(ArrayPlusComments):
             orig.array[:,orig.columns.index(orig.error_column_name())] = orig_contents.error
         else:
             orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents
+        if orig.total_weight is not None: orig.total_weight += other.total_weight
         return orig
 
     def __mul__(self, scalar):
@@ -426,7 +432,12 @@ class Histogram(ArrayPlusComments):
             orig.array[:,orig.columns.index(orig.error_column_name())] = orig_contents.error
         else:
             orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents
+        if orig.total_weight is not None: orig.total_weight *= scalar
         return orig
+
+    def __truediv__(self, scalar):
+        """Divide this histogram by a scalar, returning a new histogram with the result."""
+        return self.__mul__(1.0 / scalar)
 
     def __rmul__(self, scalar):
         return self.__mul__(scalar)
@@ -441,6 +452,7 @@ class Histogram(ArrayPlusComments):
             orig.array[:,orig.columns.index(orig.error_column_name())] = orig_contents.error
         else:
             orig.array[:,orig.columns.index(orig.value_column_name())] = orig_contents
+        if orig.total_weight is not None: orig.total_weight = scalar / orig.total_weight
         return orig
        
 
@@ -570,6 +582,20 @@ class HFile(object):
         if len(hists) > 1:  
            raise ValueError(f"Multiple histograms with name matching '{regexp}':"
                             +", ".join([hist.name for hist in hists]))
+
+    def xsection(self,regexp,xsc_label='xsc'):
+        """Return the cross section value in the header of the file
+        """
+        fullregexp = r'^.*' + regexp + rf'.*{xsc_label}\s*=' + r'.*$'
+        # search for the line containing the regexp in self.header
+        line = re.search(fullregexp, self.header, re.M)
+        if not line:
+            print ("Header of file", self.filename, "is:\n", self.header)
+            raise ValueError(f"No cross section object found matching '{regexp}' (i.e. '{fullregexp}') in header of file {self.filename}")
+        line = line.group(0)
+        #
+        result = XSection(line, xsc_label)
+        return result
 
     def __add__(self, other):
         new = copy.deepcopy(self)
