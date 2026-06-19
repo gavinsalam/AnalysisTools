@@ -66,6 +66,7 @@ def main():
     parser.add_argument("--steps", default=False, action="store_true", help="Plot histograms with steps instead of lines")
     parser.add_argument("--merge", default=None, type=str, help="regex of string to remove, e.g. '(good|bad)', "
                                                                 "histograms with identical string post-removal are on the same plot")
+    parser.add_argument("--renorm", default=False, action="store_true", help="Re-normalise histograms by dividing by their total_weight")
 
     args = parser.parse_args()
 
@@ -119,7 +120,6 @@ def main():
 
     # make plot
     with PdfPages(pdffile) as pdf: 
-        norm = hfiles[0].by_name(histogram_lists[0][0]['name']) if args.norm or args.value_and_ratio else None
 
         for ih, histogram_list in enumerate(histogram_lists):
             h0name = histogram_list[0]['name']
@@ -150,10 +150,12 @@ def main():
 
             if args.logy and re.search(args.logy, histogram.name): axh.set_yscale('log')
 
-            
             for ihfiles in range(nfiles):
               for ih_entry, h_entry in enumerate(histogram_list):
                 hh = hfiles[ihfiles].by_name(h_entry['name'])
+                if args.renorm: hh /= hh.total_weight
+                if ihfiles == 0 and ih_entry == 0: norm = hh
+                #norm = hfiles[0].by_name(histogram_list[0]['name']) if args.norm or args.value_and_ratio else None
                 dashstyle=dashstyles[ih_entry%ndashstyles]
                 hh.plot_args['label'] = h_entry['mergelabel'] + hh.plot_args['label']
                 if args.norm: 
