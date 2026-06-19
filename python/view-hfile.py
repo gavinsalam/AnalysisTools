@@ -25,7 +25,9 @@ styles = [
     {'color':'#e0a040'},
     {'color':'#00a0a0'},
     ]
-nstyles = len(styles)    
+nstyles = len(styles)
+dashstyles = ['solid', 'dashed', 'dashdot', 'dotted']
+ndashstyles = len(dashstyles)
 
 colors = cycler('color', [style['color'] for style in styles])
 # see options for things to set with 
@@ -62,6 +64,8 @@ def main():
     parser.add_argument("--pdfname", "-o","--out","-out", metavar='pdfname', type=str, default = "", 
                         help='Name of the output PDF file (if not specified, it is derived from first filename)')
     parser.add_argument("--steps", default=False, action="store_true", help="Plot histograms with steps instead of lines")
+    parser.add_argument("--merge", default=None, type=str, help="regex of string to remove, e.g. '(good|bad)', "
+                                                                "histograms with identical string post-removal are on the same plot")
 
     args = parser.parse_args()
 
@@ -95,19 +99,38 @@ def main():
     shfile = pdffile + ".sh"
     cmdline = " ".join([quote(arg) for arg in sys.argv])
     with open(shfile,'w') as sh: print(cmdline,file=sh)
-    
+
+    # handle the possibility of merging histograms onto a single page
+    if not args.merge: histogram_lists = [[{'name': h.name,'common': h.name,'mergelabel': ''}] for h in hfiles[0].histograms]
+    else:
+        # if we are merging histograms onto a single page, we need to create
+        # a new list of histograms with the merged names
+        histogram_lists = []
+        merged_idx = {}
+        for ih, histogram in enumerate(hfiles[0].histograms):
+            merge_common = re.sub(args.merge, "", histogram.name)
+            merge_name = re.search(args.merge, histogram.name).group(0)
+            hist_dict = {'name':histogram.name,'common':merge_common,'mergelabel': merge_name + ", "}
+            if merge_common not in merged_idx:
+                merged_idx[merge_common] = len(histogram_lists)
+                histogram_lists.append([hist_dict])
+            else:
+                histogram_lists[merged_idx[merge_common]].append(hist_dict)
+
     # make plot
     with PdfPages(pdffile) as pdf: 
-        for ih, histogram in enumerate(hfiles[0].histograms):
-            if args.only    and not re.search(args.only   , histogram.name): continue
-            if args.exclude and     re.search(args.exclude, histogram.name): continue
-            print("Plotting histogram", histogram.name)
+        norm = hfiles[0].by_name(histogram_lists[0][0]['name']) if args.norm or args.value_and_ratio else None
+
+        for ih, histogram_list in enumerate(histogram_lists):
+            h0name = histogram_list[0]['name']
+            if args.only    and not re.search(args.only   , h0name): continue
+            if args.exclude and     re.search(args.exclude, h0name): continue
+            print (histogram_list)
+            print("Plotting histograms", [h['name'] for h in histogram_list])
             if args.value_and_ratio:
                 fig,(axh,ax) = plt.subplots(nrows=2, sharex = True, figsize = (5,6))
-                # turn on tight layout
-                #plt.tight_layout()
                 # reduce space between subplots
-                plt.subplots_adjust(hspace=0.05)
+                fig.subplots_adjust(hspace=0.05)
                 if args.ratio_range: ax.set_ylim([float(y) for y in args.ratio_range.split(',')])
             else:
                 fig,ax = plt.subplots()
@@ -119,32 +142,34 @@ def main():
             # set the y range if requested
             if args.xrange: ax.set_xlim([float(y) for y in args.xrange.split(',')])
             if args.yrange: axh.set_ylim([float(y) for y in args.yrange.split(',')])
-            histogram.set_axes_data(ax)
+            hfiles[ihfiles].by_name(h0name).set_axes_data(ax)
+            ax.set_title(histogram_list[0]['common'])
+            ax.set_xlabel(re.sub(r'.*?:', '', histogram_list[0]['common']))
             if args.xlabel: ax.set_xlabel(args.xlabel)
             if args.ylabel: ax.set_ylabel(args.ylabel)
 
             if args.logy and re.search(args.logy, histogram.name): axh.set_yscale('log')
 
+            
             for ihfiles in range(nfiles):
-                hh = hfiles[ihfiles].by_name(histogram.name)
-                # print(hh)
-                # hh = hfiles[ihfiles].histograms[ih]
-                # if hh.name != histogram.name:
-                #     raise ValueError(f"histogram {histogram.name} not found in file {filenames[ihfiles]}")
+              for ih_entry, h_entry in enumerate(histogram_list):
+                hh = hfiles[ihfiles].by_name(h_entry['name'])
+                dashstyle=dashstyles[ih_entry%ndashstyles]
+                hh.plot_args['label'] = h_entry['mergelabel'] + hh.plot_args['label']
                 if args.norm: 
-                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles], norm=hfiles[0].histograms[ih]) 
+                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles], ls=dashstyle, norm=norm) 
                 elif args.value_and_ratio:
-                    if ihfiles == 0: 
+                    if ihfiles == 0 and ih_entry == 0: 
                         axh.set_title(ax.get_title())
                         axh.set_ylabel(ax.get_ylabel()+"")
                         ax.set_ylabel("ratio to first")
                         ax.set_title("")
-                    hh.plot_to_axes(axh, **styles[ihfiles%nstyles], steps=args.steps) 
-                    hh.plot_to_axes(ax , **styles[ihfiles%nstyles], norm=hfiles[0].histograms[ih], steps=args.steps) 
+                    hh.plot_to_axes(axh, **styles[ihfiles%nstyles], ls=dashstyle, steps=args.steps) 
+                    hh.plot_to_axes(ax , **styles[ihfiles%nstyles], ls=dashstyle, norm=norm, steps=args.steps) 
                 else:
-                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles], steps=args.steps) 
+                    hh.plot_to_axes(ax, **styles[ihfiles%nstyles], ls=dashstyle, steps=args.steps) 
 
-            ax.legend(loc='best')
+            axh.legend(loc='best')
             pdf.savefig(fig,bbox_inches='tight')
             plt.close()
             #main(pdf)
