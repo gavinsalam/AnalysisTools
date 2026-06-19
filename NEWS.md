@@ -1,5 +1,5 @@
 
-# Towards 1.2.0
+# 1.2.0 2026-06-19
 
 ## New features in C++
 
