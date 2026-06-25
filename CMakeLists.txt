@@ -33,7 +33,7 @@ if(NOT ANALYSISTOOLS_GSL_TARGETS)
   message(FATAL_ERROR "Could not determine the imported CMake targets provided by GSL.")
 endif()
 
-add_library(AnalysisTools
+add_library(AnalysisTools SHARED
   AnalysisBase.cc
 )
 add_library(AnalysisTools::AnalysisTools ALIAS AnalysisTools)
