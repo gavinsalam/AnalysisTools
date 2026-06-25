@@ -1,6 +1,8 @@
 
 # unreleased
 
+- added CmdLine as a submodule, so no external dependencies needed other than GSL.
+- added CMakeLists.txt
 
 # 1.2.1 2026-06-19
 
