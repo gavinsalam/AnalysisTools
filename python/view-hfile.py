@@ -151,7 +151,7 @@ def main():
             if args.xlabel: ax.set_xlabel(args.xlabel)
             if args.ylabel: ax.set_ylabel(args.ylabel)
 
-            if args.logy and re.search(args.logy, histogram.name): axh.set_yscale('log')
+            if args.logy and re.search(args.logy, h0name): axh.set_yscale('log')
 
             for ihfiles in range(nfiles):
               for ih_entry, h_entry in enumerate(histogram_list):
