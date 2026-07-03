@@ -1,5 +1,5 @@
 
-# unreleased
+# unreleased (targeting 1.3.0)
 
 - added CmdLine as a submodule, so no external dependencies needed other than GSL.
 - added CMakeLists.txt
