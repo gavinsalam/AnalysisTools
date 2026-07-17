@@ -7,22 +7,34 @@ public:
 
   SimpleHist2DWithError() {};
   SimpleHist2DWithError(double minu, double maxu, int nu,
-			double minv, double maxv, int nv) {
+                        double minv, double maxv, int nv) {
     declare(minu, maxu, unsigned(nu), minv, maxv, unsigned(nv));
   }
 
   SimpleHist2DWithError(double minu, double maxu, unsigned int nu,
-	       double minv, double maxv, unsigned int nv) {
+                        double minv, double maxv, unsigned int nv) {
     declare(minu, maxu, nu, minv, maxv, nv);
   }
 
   SimpleHist2DWithError(double minu, double maxu, double bin_size_u,
-	       double minv, double maxv, double bin_size_v) {
-    SimpleHist2D::declare(minu, maxu, bin_size_u, minv, maxv, bin_size_v);
+                        double minv, double maxv, double bin_size_v) {
+    declare(minu, maxu, bin_size_u, minv, maxv, bin_size_v);
+  }
+
+  // declare (or redeclare) the histogram
+  void declare(double minu, double maxu, double bin_size_u,
+               double minv, double maxv, double bin_size_v) {
+    declare(minu, maxu, int(0.5+(maxu-minu)/bin_size_u),
+            minv, maxv, int(0.5+(maxv-minv)/bin_size_v));
+  }
+
+  void declare(double minu, double maxu, int nu,
+               double minv, double maxv, int nv) {
+    declare(minu, maxu, unsigned(nu), minv, maxv, unsigned(nv));
   }
 
   void declare(double minu, double maxu, unsigned int nu,
-	             double minv, double maxv, unsigned int nv) override {
+               double minv, double maxv, unsigned int nv) {
     SimpleHist2D::declare(minu, maxu, nu, minv, maxv, nv);
     _weights_sumsqr.resize(outflow_size());
     _weights_sumsqr = 0.0;

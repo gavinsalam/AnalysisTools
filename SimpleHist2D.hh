@@ -43,18 +43,13 @@ public:
   }
 
   // declare (or redeclare) the histogram
-  virtual void declare(double minu, double maxu, unsigned int nu,
-	       double minv, double maxv, unsigned int nv) {
+  void declare(double minu, double maxu, unsigned int nu,
+	             double minv, double maxv, unsigned int nv) {
     _minu = minu; _maxu = maxu; _du = (maxu-minu)/nu; _nu = nu; 
     _minv = minv; _maxv = maxv; _dv = (maxv-minv)/nv; _nv = nv; 
-    _weights.resize(nu*nv+1);
-    _weights = 0.0;
-    //_weight_v = 0.0;
-    //_weight_vsq = 0.0;
-    _total_weight = 0.0;
-    _have_total = false;
+    _initialise();
   }
-
+  
   SimpleHist2D & declare_once(double minu, double maxu, unsigned int nu,
 	            double minv, double maxv, unsigned int nv) {
     if (_weights.size() == 0) declare(minu,maxu,nu, minv,maxv,nv);
@@ -219,6 +214,17 @@ public:
   }
 
 protected:
+
+  /// once we have set up bin sizes and numbers, this can be called to initialise the histogram contents to zero
+  void _initialise() {
+    _weights.resize(_nu*_nv+1);
+    _weights = 0.0;
+    //_weight_v = 0.0;
+    //_weight_vsq = 0.0;
+    _total_weight = 0.0;
+    _have_total = false;
+  }
+  
 
   virtual void _add_entry_ibin(unsigned int ibin, double weight) {
     if (_weights.size() == 0) {
