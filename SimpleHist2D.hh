@@ -330,7 +330,9 @@ inline SimpleHist2D pow2(const SimpleHist2D & hist) {
 inline void output_compact(const SimpleHist2D & hist0, 
                    std::ostream * ostr = (&std::cout),
                    double norm = 1.0) {
-  hist0.output_total_and_outflow(*ostr, norm);
+  // this is commented out because we need a different normalisation for
+  // the totals and for dbin/dudv  
+  //hist0.output_total_and_outflow(*ostr, norm);
   *ostr << "# cols: umid vmid hist" << std::endl;    
   for (unsigned iu = 0; iu < hist0.nu(); iu++) {
   for (unsigned iv = 0; iv < hist0.nv(); iv++) {
