@@ -3,9 +3,11 @@
 
 - added CmdLine as a submodule, so no external dependencies needed other than GSL.
 - added CMakeLists.txt
+- added SimpleHist2DWithError 
 
 ## Bug fixes
 - fixed broken `view-hfile.py --logy` option
+- fixed some broken arithmetic operations in SimpleHist and SimpleHistWithError
 
 # 1.2.1 2026-06-19
 

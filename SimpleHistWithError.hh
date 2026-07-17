@@ -106,6 +106,17 @@ public:
   friend SimpleHistWithError operator/(const SimpleHistWithError & hist, double fact);
 
 
+  SimpleHistWithError operator+=(const SimpleHistWithError & other) {
+    SimpleHist::operator+=(other);
+    _weights_sumsqr += other._weights_sumsqr;
+    return *this;
+  }
+  SimpleHistWithError operator-=(const SimpleHistWithError & other) {
+    SimpleHist::operator-=(other);
+    _weights_sumsqr += other._weights_sumsqr;
+    return *this;
+  }
+
 protected:
   void _add_entry_ibin(double v, unsigned ibin, double weight) override {
     SimpleHist::_add_entry_ibin(v, ibin, weight);
@@ -129,6 +140,17 @@ inline SimpleHistWithError operator*(const SimpleHistWithError & hist, double fa
 inline SimpleHistWithError operator/(const SimpleHistWithError & hist, double fact) {
   SimpleHistWithError result(hist);
   result *= 1.0/fact;
+  return result;
+}
+
+inline SimpleHistWithError operator+(const SimpleHistWithError & hista, const SimpleHistWithError & histb) {
+  auto result = hista;
+  result += histb;
+  return result;
+}
+inline SimpleHistWithError operator-(const SimpleHistWithError & hista, const SimpleHistWithError & histb) {
+  auto result = hista;
+  result -= histb;
   return result;
 }
 

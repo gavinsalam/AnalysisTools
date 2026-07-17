@@ -120,30 +120,31 @@ public:
     assert(other.outflow_size() == outflow_size());
     for (unsigned i = 0; i < outflow_size(); i++) (*this)[i] *= other[i];
     return *this;
-  };
+  }
 
   SimpleHist & operator/=(const SimpleHist & other) {
     assert(other.outflow_size() == outflow_size());
     for (unsigned i = 0; i < outflow_size(); i++) (*this)[i] /= other[i];
     return *this;
-  };
+  }
 
   SimpleHist & operator+=(const SimpleHist & other) {
     assert(other.outflow_size() == outflow_size());
     for (unsigned i = 0; i < outflow_size(); i++) (*this)[i] += other[i];
-    _weight_v += other._weight_v;
+    _weight_v   += other._weight_v;
     _weight_vsq += other._weight_vsq;
-    if (_have_total && other._have_total) {
-      _total_weight += other._total_weight;
-    } else {_have_total = false;}
+    if (_have_total && other._have_total) _total_weight += other._total_weight;
+    else                                  _have_total = false;
+    _n_entries += other._n_entries;
     return *this;
-  };
+  }
 
   SimpleHist & operator-=(const SimpleHist & other) {
-    assert(other.outflow_size() == outflow_size());
-    for (unsigned i = 0; i < outflow_size(); i++) (*this)[i] -= other[i];
+    SimpleHist minus_other = other;
+    minus_other *= -1.0;
+    *this += minus_other;
     return *this;
-  };
+  }
 
   // output operations ----------------------------------------------
   /// output a header with the total weight and the mean value of the histogram
@@ -236,25 +237,12 @@ inline SimpleHist operator*(const SimpleHist & hist, double fact) {
   SimpleHist result = hist;
   result *= fact;
   return result;
-
-  //SimpleHist result(hist.min(), hist.max(), hist.size());
-  //for (unsigned i = 0; i < hist.outflow_size(); i++) result[i] = hist[i] * fact;
-  //result._weight_v = hist._weight_v * fact;
-  //result._weight_vsq = hist._weight_vsq * fact;
-  //result._have_total = hist.have_total;
-  //return result;
 }
 
 inline SimpleHist operator/(const SimpleHist & hist, double fact) {
   SimpleHist result = hist;
-  result *= fact;
+  result /= fact;
   return result;
-
-  //SimpleHist result(hist.min(), hist.max(), hist.size());
-  //for (unsigned i = 0; i < hist.outflow_size(); i++) result[i] = hist[i] / fact;
-  //result._weight_v = hist._weight_v / fact;
-  //result._weight_vsq = hist._weight_vsq / fact;
-  //return result;
 }
 
 inline SimpleHist operator*(double fact, const SimpleHist & hist) {
@@ -280,15 +268,13 @@ inline SimpleHist operator/(const SimpleHist & hista, const SimpleHist & histb) 
   return result;
 }
 inline SimpleHist operator+(const SimpleHist & hista, const SimpleHist & histb) {
-  assert(hista.outflow_size() == histb.outflow_size());
-  SimpleHist result(hista.min(), hista.max(), hista.size());
-  for (unsigned i = 0; i < hista.outflow_size(); i++) result[i] = hista[i] + histb[i];
+  auto result = hista;
+  result += histb;
   return result;
 }
 inline SimpleHist operator-(const SimpleHist & hista, const SimpleHist & histb) {
-  assert(hista.outflow_size() == histb.outflow_size());
-  SimpleHist result(hista.min(), hista.max(), hista.size());
-  for (unsigned i = 0; i < hista.outflow_size(); i++) result[i] = hista[i] - histb[i];
+  auto result = hista;
+  result -= histb;
   return result;
 }
 

@@ -12,6 +12,12 @@ TEST_CASE( "SimpleHist", "[SimpleHist]" ) {
   bool verbose = false;
   SimpleHist hist(0.0, 10.0, 2.0);
 
+  hist.add_entry(5.0);
+  hist.add_entry(9.0, 0.5);
+  hist.add_entry(-1.0);
+  hist.add_entry(-2.0);
+  hist.add_entry(11.0);
+
   SECTION("Size constraints") {
     REQUIRE(hist.size() == 5);
     REQUIRE(hist.outflow_size() == 7);
@@ -19,11 +25,6 @@ TEST_CASE( "SimpleHist", "[SimpleHist]" ) {
   }
 
   SECTION("Filling and querying the histogram") {
-    hist.add_entry(5.0);
-    hist.add_entry(9.0, 0.5);
-    hist.add_entry(-1.0);
-    hist.add_entry(-2.0);
-    hist.add_entry(11.0);
     // N.N_a should be the same as Approx(N.N)
     REQUIRE(hist[2] == 1.0_a);
     REQUIRE(hist[4] == 0.5_a);
@@ -60,4 +61,11 @@ TEST_CASE( "SimpleHist", "[SimpleHist]" ) {
     REQUIRE(hist3.overflow()  == 0.0);
   }
 
+
+  SECTION("Arithmetic") {
+    auto hist05 = hist*0.5;
+    REQUIRE(hist05[2]*2.0 == 1.0_a);
+    auto histdiv2 = hist/2.0;
+    REQUIRE(histdiv2[2]*2.0 == 1.0_a);
+  }
 }

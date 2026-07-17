@@ -35,6 +35,11 @@ public:
   double error(unsigned i) const {return _error_calc(_weights[i], _weights_sumsqr[i]);}
 
 
+  double sumsqr(int iu, int iv) const {
+    return _weights_sumsqr[getbin(iu,iv)];
+  }
+  double sumsqr(unsigned i) const {return _weights_sumsqr[i];}
+
   // Operations with constants ---------------------------------------
   SimpleHist2DWithError & operator*=(double fact) {
     double factsqr = fact*fact;
