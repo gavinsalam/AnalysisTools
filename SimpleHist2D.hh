@@ -6,6 +6,7 @@
 #include<cmath>
 #include<iostream>
 #include<cassert>
+#include<exception>
 
 class SimpleHist2D {
 public:
@@ -213,6 +214,9 @@ public:
 protected:
 
   virtual void _add_entry_ibin(unsigned int ibin, double weight) {
+    if (_weights.size() == 0) {
+      throw std::runtime_error("SimpleHist2D::_add_entry_ibin called before histogram declared");
+    }
     _have_total = false;
     _n_entries += 1.0;
     _weights[ibin] += weight;

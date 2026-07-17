@@ -1,6 +1,7 @@
 
 # unreleased (targeting 1.3.0)
 
+- moved to C++20
 - added CmdLine as a submodule, so no external dependencies needed other than GSL.
 - added CMakeLists.txt
 - added SimpleHist2DWithError 
