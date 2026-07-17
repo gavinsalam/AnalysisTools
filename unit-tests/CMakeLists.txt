@@ -4,6 +4,7 @@ add_executable(unit-tests
   test_GSLRandom.cc
   test_SimpleHist.cc
   test_SimpleHistWithError.cc
+  test_SimpleHist2D.cc
 )
 target_link_libraries(unit-tests PRIVATE AnalysisTools::AnalysisTools)
 

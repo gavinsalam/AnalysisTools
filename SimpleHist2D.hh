@@ -42,7 +42,7 @@ public:
   }
 
   // declare (or redeclare) the histogram
-  void declare(double minu, double maxu, unsigned int nu,
+  virtual void declare(double minu, double maxu, unsigned int nu,
 	       double minv, double maxv, unsigned int nv) {
     _minu = minu; _maxu = maxu; _du = (maxu-minu)/nu; _nu = nu; 
     _minv = minv; _maxv = maxv; _dv = (maxv-minv)/nv; _nv = nv; 
@@ -88,17 +88,23 @@ public:
     }
   }
 
-    double & operator()(int iu, int iv) {_have_total = false; 
-    return _weights[getbin(iu,iv)];}
-    const double & operator()(int iu, int iv) const {
-    return _weights[getbin(iu,iv)];}
+  double & operator()(int iu, int iv) {
+    _have_total = false; 
+    return _weights[getbin(iu,iv)];
+  }
+  const double & operator()(int iu, int iv) const {
+    return _weights[getbin(iu,iv)];
+  }
 
   double & operator[](int i) {_have_total = false; return _weights[i];}
   const double & operator[](int i) const {return _weights[i];}
   
-  /// returns the outflow bin
-  double & outflow() {return _weights[size()];};
-  const double & outflow() const {return _weights[size()];};
+  /// return the contents of the outflow bin
+  double &       outflow()       {return _weights[outflow_bin()];};
+  const double & outflow() const {return _weights[outflow_bin()];};
+
+  /// return the index of the outflow bin
+  unsigned outflow_bin() const {return size();};
 
   double u_binlo (int i) const {return i*_du + _minu;};
   double u_binhi (int i) const {return (i+1)*_du + _minu;};
@@ -144,12 +150,14 @@ public:
   }
 
   void add_entry(double u, double v, double weight = 1.0) {
+    unsigned ibin = getbin(u_bin(u), v_bin(v));
+    _add_entry_ibin(ibin, weight);
     //if (v >= _minv && v < _maxv) {
     //  int i = int((v-_minv)/_dv); 
     //  if (i >= 0 && i < int(_weights.size())) _weights[i] += weight;
     //}
-    _have_total = false;
-    _weights[getbin(u_bin(u), v_bin(v))] += weight;
+    //_have_total = false;
+    //_weights[getbin(u_bin(u), v_bin(v))] += weight;
     //_weight_v += weight * v;
     //_weight_vsq += weight * v * v;
   };
@@ -197,19 +205,29 @@ public:
     return *this;
   };
 
-
   friend SimpleHist2D operator*(const SimpleHist2D & hist, double fact);
   friend SimpleHist2D operator/(const SimpleHist2D & hist, double fact);
 
-private:
+  double n_entries() const {return _n_entries;}
+
+protected:
+
+  virtual void _add_entry_ibin(unsigned int ibin, double weight) {
+    _have_total = false;
+    _n_entries += 1.0;
+    _weights[ibin] += weight;
+  }
+
   double _minv, _maxv, _dv;
   double _minu, _maxu, _du;
   unsigned int _nu, _nv;
   std::valarray<double> _weights;
   std::string _name;
   //double _weight_v, _weight_vsq;
-  mutable double _total_weight;
-  mutable bool   _have_total;
+  mutable double _total_weight = 0.0;
+  mutable bool   _have_total = false;
+  double _n_entries = 0.0;
+
 };
 
 

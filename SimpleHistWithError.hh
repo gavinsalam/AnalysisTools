@@ -32,7 +32,7 @@ public:
   const double & sumsqr(unsigned i) const {return _weights_sumsqr[i];}
 
   /// returns the error on the bin's contents
-  double error(unsigned i) const {return error_calc(_weights[i], _weights_sumsqr[i]);}
+  double error(unsigned i) const {return _error_calc(_weights[i], _weights_sumsqr[i]);}
 
   // Operations with constants ---------------------------------------
   SimpleHistWithError & operator*=(double fact) {
@@ -90,15 +90,15 @@ public:
     double cumul   = underflow();
     double cumulsq = sumsqr(underflow_bin());
     ostr << prefix << "cols: v hist_integral_up_to_v err" << std::endl;
-    ostr << min() << " " << cumul << " " << error_calc(cumul, cumulsq) << std::endl;
+    ostr << min() << " " << cumul << " " << _error_calc(cumul, cumulsq) << std::endl;
     for (unsigned i = 0; i < size(); i++) {
       cumul   += (*this)[i];
       cumulsq += sumsqr(i);
-      ostr << binhi(i) << " " << cumul << " " << error_calc(cumul, cumulsq) << std::endl;
+      ostr << binhi(i) << " " << cumul << " " << _error_calc(cumul, cumulsq) << std::endl;
     }
     cumul   += overflow();
     cumulsq += sumsqr(overflow_bin());
-    ostr << prefix << "with_overflow " << cumul << " +- " << error_calc(cumul, cumulsq) << std::endl;
+    ostr << prefix << "with_overflow " << cumul << " +- " << _error_calc(cumul, cumulsq) << std::endl;
     return ostr;
   }
   
@@ -112,7 +112,7 @@ protected:
     _weights_sumsqr[ibin] += weight*weight;
   }
 
-  double error_calc(double sum, double sumsq) const {
+  double _error_calc(double sum, double sumsq) const {
     return std::sqrt(std::abs(sumsq - sum*sum/n_entries()));
   }
   std::valarray<double> _weights_sumsqr;
