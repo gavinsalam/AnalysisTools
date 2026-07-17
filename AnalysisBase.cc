@@ -310,6 +310,14 @@ void AnalysisBase::standard_output() {
     ostr << endl << endl;
   }
 
+  for (const auto & label: ordered_labels(hists_2d_compact_err)) {
+    const auto & obj = hists_2d_compact_err[label];
+    ostr << "# 2d_hist_compact_err:" << label << " [xmid ymid dN/dxdy dNErr/dxdy] " << endl;
+    ostr << "# ecol = 4" << endl;
+    output_compact(obj, &ostr, norm/obj.u_binsize()/obj.v_binsize());
+    ostr << endl << endl;
+  }
+
   // provide any additional output, for example warnings (maybe
   // warnings should be incorporated into AnalysisTools?)
   user_output(ostr);

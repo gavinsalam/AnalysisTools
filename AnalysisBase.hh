@@ -9,6 +9,7 @@
 #include "SimpleHist.hh"
 #include "SimpleHistWithError.hh"
 #include "SimpleHist2D.hh"
+#include "SimpleHist2DWithError.hh"
 #include "AveragingHist.hh"
 #include "CorrelationHist.hh"
 #include "AverageAndError.hh"
@@ -370,6 +371,9 @@ public:
   Collection<SimpleHist2D> hists_2d;
   /// 2d-histograms, where only bin midpoint coordinates get written out
   Collection<SimpleHist2D> hists_2d_compact;
+  Collection<SimpleHist2DWithError> hists_2d_compact_err;
+  Collection<SimpleHist2DWithError> & hists_2d_err_compact = hists_2d_compact_err;  // alias in case user gets confused by the name
+
 
   /** @} *************************************************************/
 

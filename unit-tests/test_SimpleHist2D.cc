@@ -5,8 +5,9 @@
 using namespace Catch::literals;
 
 using namespace std;
-  
-//TEST_CASE( "SimpleHist2D", "[SimpleHist2D]" ) {
+
+// note that this test explores both SimpleHist2D and SimpleHist2DWithError,
+// with a special "if" statement to test the error-related functionality only for SimpleHist2DWithError
 TEMPLATE_TEST_CASE( "SimpleHist2D", "[SimpleHist2D]", SimpleHist2D, SimpleHist2DWithError ) {
   TestType hist(0.0, 10.0, 2.0, 0.0, 10.0, 2.0);
   //                              outflow, total, bin(2,2)

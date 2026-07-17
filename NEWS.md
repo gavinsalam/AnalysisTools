@@ -4,7 +4,7 @@
 - moved to C++20
 - added CmdLine as a submodule, so no external dependencies needed other than GSL.
 - added CMakeLists.txt
-- added SimpleHist2DWithError 
+- added `SimpleHist2DWithError` and associated `Collection<...> hists_2d_compact_err`
 
 ## Bug fixes
 - fixed broken `view-hfile.py --logy` option

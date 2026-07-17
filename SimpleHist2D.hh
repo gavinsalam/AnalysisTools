@@ -211,6 +211,13 @@ public:
 
   double n_entries() const {return _n_entries;}
 
+  std::ostream & output_total_and_outflow(std::ostream & ostr, double norm = 1.0, const std::string & prefix = "# ") const {
+    ostr << prefix << "total_weight = " << norm*total_weight() << std::endl;
+    ostr << prefix << "outflow = " << norm*outflow() << std::endl;
+    ostr << prefix << "n_entries = " << n_entries() << std::endl;
+    return ostr;
+  }
+
 protected:
 
   virtual void _add_entry_ibin(unsigned int ibin, double weight) {
@@ -317,7 +324,8 @@ inline SimpleHist2D pow2(const SimpleHist2D & hist) {
 inline void output_compact(const SimpleHist2D & hist0, 
                    std::ostream * ostr = (&std::cout),
                    double norm = 1.0) {
-  *ostr << "# cols: umid vmid hist" << std::endl;                  
+  hist0.output_total_and_outflow(*ostr, norm);
+  *ostr << "# cols: umid vmid hist" << std::endl;    
   for (unsigned iu = 0; iu < hist0.nu(); iu++) {
   for (unsigned iv = 0; iv < hist0.nv(); iv++) {
     *ostr << hist0.u_binmid(iu) << " "
@@ -337,6 +345,7 @@ inline void output_compact(const SimpleHist2D & hist0,
 inline void output(const SimpleHist2D & hist0, 
                    std::ostream * ostr = (&std::cout),
                    double norm = 1.0) {
+  hist0.output_total_and_outflow(*ostr, norm);
   *ostr << "# cols: ulo umid uhi vlo vmid vhi hist" << std::endl;                  
   for (unsigned iu = 0; iu < hist0.nu(); iu++) {
   for (unsigned iv = 0; iv < hist0.nv(); iv++) {

@@ -75,6 +75,14 @@ public:
     *this += minus_other;
     return *this;
   }
+
+  std::ostream & output_total_and_outflow(std::ostream & ostr, double norm = 1.0, const std::string & prefix = "# ") const {
+    ostr << prefix << "total_weight = " << norm*total_weight() << std::endl;
+    ostr << prefix << "outflow = " << norm*outflow() << " +- " << norm*error(outflow_bin()) << std::endl;
+    ostr << prefix << "n_entries = " << n_entries() << std::endl;
+    return ostr;
+  }
+
   
 protected:
   void _add_entry_ibin(unsigned int ibin, double weight) override {
@@ -115,4 +123,26 @@ inline SimpleHist2DWithError operator*(double fact, const SimpleHist2DWithError 
 }
 inline SimpleHist2DWithError operator/(double fact, const SimpleHist2DWithError & hist) {
   return hist/fact;
+}
+
+
+/// output the histogram to standard output -- an operator<< might
+/// have seemed nice, but less easy to generalize to multiple
+/// histograms; the output is multipled by the factor norm.
+inline void output_compact(const SimpleHist2DWithError & hist0, 
+                   std::ostream * ostr = (&std::cout),
+                   double norm = 1.0) {
+  hist0.output_total_and_outflow(*ostr, norm);
+  *ostr << "# cols: umid vmid hist err" << std::endl;    
+  for (unsigned iu = 0; iu < hist0.nu(); iu++) {
+  for (unsigned iv = 0; iv < hist0.nv(); iv++) {
+    *ostr << hist0.u_binmid(iu) << " "
+          << hist0.v_binmid(iv) << " "
+          << hist0(iu,iv)*norm  << " " 
+          << hist0.error(iu,iv)*norm 
+          << std::endl;
+  }
+  // make it readable by gnuplot
+  *ostr << std::endl;
+  }
 }
