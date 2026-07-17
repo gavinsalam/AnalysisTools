@@ -10,6 +10,7 @@ To run unit tests, do
   python3 -m hfile
 
 """
+from __future__ import annotations
 from builtins import range
 from builtins import str
 from builtins import object
@@ -349,7 +350,7 @@ class Histogram(ArrayPlusComments):
             if 'err' in column: return column
         raise ValueError("No column with tag 'err'")
     
-    def x_array(self):
+    def x_array(self) -> np.ndarray:
         try:
             return self.array_by_tag('vmid')
         except ValueError:
@@ -391,12 +392,15 @@ class Histogram(ArrayPlusComments):
             if alt_tag and alt_tag in column: return self.array[:,i]
         raise ValueError("No column with tag " + tag)
 
-    def value_or_ValueAndError(self):
+    def value_or_ValueAndError(self) -> np.ndarray | ValueAndError:
         """Return the value if there is no error column, otherwise return a ValueAndError object"""
         if self.has_error():
             return ValueAndError(self.value_array(),self.error_array())
         else:
             return self.value_array()
+
+    def ve(self) ->  np.ndarray | ValueAndError:
+       return self.value_or_ValueAndError()
 
     def __add__(self, other):
         """sum another histogram to this one; NB does not yet handle total_weight, etc."""
@@ -568,11 +572,11 @@ class HFile(object):
         if self.warnings:
             for line in f: self.warnings += line
 
-    def by_name(self,name):
+    def by_name(self,name) -> Histogram:
         """Return the histogram with the exact given name"""
         return self.map[name]
     
-    def by_re(self,regexp):
+    def by_re(self,regexp) -> Histogram:
         """Return the histogram with a name that matches the given regexp"""
         hists = []
         for hist in self.histograms:
